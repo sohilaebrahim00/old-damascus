@@ -9,8 +9,8 @@ import { CateringBanner } from "@/components/home/CateringBanner";
 import { RestaurantInfo } from "@/components/home/RestaurantInfo";
 import { GoogleReviewCTA } from "@/components/home/GoogleReviewCTA";
 import { FinalCTA } from "@/components/home/FinalCTA";
-import { getMenuItems } from "@/services/menu.service";
-import { FEATURED_ITEM_IDS } from "@/data/menu.seed";
+import { SEED_MENU_ITEMS, FEATURED_ITEM_IDS } from "@/data/menu.seed";
+import { getMenuItemMapping } from "@/data/menu-image-map";
 import { restaurant } from "@/config/restaurant";
 
 export const metadata: Metadata = {
@@ -22,7 +22,22 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const { items } = await getMenuItems();
+  const items = SEED_MENU_ITEMS.map(item => {
+    const mapping = getMenuItemMapping(item.cloverItemId || item.id)
+      || getMenuItemMapping(item.id)
+      || getMenuItemMapping(item.name)
+      || getMenuItemMapping(item.slug);
+    
+    const primaryImage = mapping ? mapping.primary : (item.primaryImage || item.image || "");
+    const images = mapping ? mapping.gallery : (item.images || (primaryImage ? [primaryImage] : []));
+    
+    return {
+      ...item,
+      primaryImage,
+      images,
+      image: primaryImage
+    };
+  });
 
   const featuredItems = FEATURED_ITEM_IDS.map(
     (id) => items.find((item) => item.id === id)

@@ -7,7 +7,7 @@ import { CartProvider } from "@/components/cart/CartProvider";
 import { StickyMobileCart } from "@/components/cart/StickyMobileCart";
 import { Toaster } from "@/components/ui/Toaster";
 import { restaurant } from "@/config/restaurant";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { MotionProvider } from "@/components/providers/MotionProvider";
 
 // ---- Fonts ----
@@ -73,8 +73,23 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await createClient();
+      const result = await Promise.race([
+        supabase.auth.getUser(),
+        new Promise<unknown>((_, reject) =>
+          setTimeout(() => reject(new Error("Supabase auth timeout")), 2500)
+        ),
+      ]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      user = (result as any)?.data?.user ?? null;
+    } catch {
+      user = null;
+    }
+  }
 
   return (
     <html

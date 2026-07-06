@@ -110,11 +110,18 @@ export async function getMenuItems(): Promise<{
 
   try {
     const provider = getMenuProvider();
-    const items = await provider.getItems();
+    
+    // Add 4-second timeout
+    const items = await Promise.race([
+      provider.getItems(),
+      new Promise<MenuItem[]>((_, reject) =>
+        setTimeout(() => reject(new Error("Clover menu fetch timed out")), 4000)
+      ),
+    ]);
+
     return { items, source: "clover" };
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Unknown Clover error";
+    const message = err instanceof Error ? err.message : "Unknown Clover error";
     console.error("[MenuService] Clover unavailable, using seed:", message);
 
     // Fall back to local seed
@@ -129,9 +136,16 @@ export async function getMenuCategories(): Promise<MenuCategory[]> {
 
   try {
     const provider = getMenuProvider();
-    return await provider.getCategories();
+    const categories = await Promise.race([
+      provider.getCategories(),
+      new Promise<MenuCategory[]>((_, reject) =>
+        setTimeout(() => reject(new Error("Clover categories fetch timed out")), 4000)
+      ),
+    ]);
+    return categories;
   } catch (err) {
-    console.error("[MenuService] Failed to fetch Clover categories:", err);
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[MenuService] Failed to fetch Clover categories:", message);
     return SEED_CATEGORIES;
   }
 }
@@ -145,7 +159,13 @@ export async function getMenuItemBySlug(
 
   try {
     const provider = getMenuProvider();
-    return await provider.getItemBySlug(slug);
+    const item = await Promise.race([
+      provider.getItemBySlug(slug),
+      new Promise<MenuItem | null>((_, reject) =>
+        setTimeout(() => reject(new Error("Clover item fetch timed out")), 4000)
+      ),
+    ]);
+    return item;
   } catch {
     return SEED_MENU_ITEMS.find((i) => i.slug === slug) ?? null;
   }
