@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@config "../../tailwind.config.ts";
+
+/* ============================================================
+   CSS Custom Properties
+   ============================================================ */
+:root {
+  --color-brand-dark: #315F05;
+  --color-brand: #548B08;
+  --color-brand-lime: #9DC52A;
+  --color-brand-olive: #234804;
+  --color-gold: #D4A900;
+  --color-cream: #FAF9F4;
+  --color-cream-warm: #F3EFE4;
+  --color-text: #18200F;
+  --color-muted: #68705F;
+  --color-border: #DDDCCF;
+  --color-error: #A62626;
+  --color-success: #2E6C30;
+  --header-height: 72px;
+}
+
+/* ============================================================
+   Base Reset & Typography
+   ============================================================ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-manrope), system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-cream text-olive-dark antialiased;
+    font-family: var(--font-manrope), system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), Georgia, serif;
+    @apply text-olive-dark leading-tight;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  img {
+    @apply max-w-full;
+  }
+
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-dark rounded;
+  }
+
+  /* Smooth scrollbar for Chrome */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-cream;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-brand;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ============================================================
+   Utility Components
+   ============================================================ */
+@layer components {
+  .container-site {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-pad {
+    @apply py-12 sm:py-16;
+  }
+
+  .section-pad-sm {
+    @apply py-10 sm:py-14;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
+           transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
+           transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:ring-2 focus-visible:ring-offset-2 bg-brand-dark text-white hover:bg-brand-olive 
+           focus-visible:ring-brand-dark shadow-sm hover:shadow-card-hover;
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
+           transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:ring-2 focus-visible:ring-offset-2 bg-brand-gold text-white hover:bg-yellow-700 
+           focus-visible:ring-brand-gold shadow-gold;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
+           transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:ring-2 focus-visible:ring-offset-2 border-2 border-brand-dark text-brand-dark 
+           hover:bg-brand-dark hover:text-white focus-visible:ring-brand-dark;
+  }
+
+  .btn-outline-white {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
+           transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:ring-2 focus-visible:ring-offset-2 border-2 border-white text-white 
+           hover:bg-white hover:text-brand-dark focus-visible:ring-white;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
+           transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:ring-2 focus-visible:ring-offset-2 text-brand-dark hover:bg-cream-warm focus-visible:ring-brand;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-8 py-4 text-base;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-border overflow-hidden
+           transition-all duration-300 hover:shadow-card-hover;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  .badge-green {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800;
+  }
+
+  .badge-gold {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800;
+  }
+
+  .badge-red {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-olive-dark
+           placeholder-olive/50 transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .label {
+    @apply block text-sm font-semibold text-olive-dark mb-1.5;
+  }
+
+  .section-title {
+    @apply text-3xl sm:text-4xl font-heading font-semibold text-olive-dark;
+  }
+
+  .section-subtitle {
+    @apply text-base sm:text-lg text-olive leading-relaxed mt-3;
+  }
+
+  /* Announcement bar */
+  .announcement-bar {
+    @apply bg-brand-dark text-white text-xs sm:text-sm py-2 px-4 text-center;
+  }
+
+  /* Category pill nav */
+  .cat-pill {
+    @apply px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200
+           border border-border text-olive-dark hover:border-brand hover:text-brand cursor-pointer;
+  }
+
+  .cat-pill-active {
+    @apply bg-brand-dark text-white border-brand-dark hover:border-brand-dark hover:text-white;
+  }
+
+  /* Price */
+  .price-tag {
+    @apply text-lg font-bold text-brand-dark;
+  }
+
+  /* Divider */
+  .divider {
+    @apply border-t border-border;
+  }
+
+
+}
