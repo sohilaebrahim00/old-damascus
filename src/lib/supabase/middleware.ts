@@ -18,11 +18,12 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  // Prevent running heavy auth logic for static assets and public routes
+  // Prevent running heavy auth logic for static assets, API routes, and public routes
   const path = request.nextUrl.pathname;
   if (
     path.startsWith("/_next") ||
     path.startsWith("/brand") ||
+    path.startsWith("/api/") ||
     path.startsWith("/menu/") ||
     path === "/" ||
     path.match(/\.(png|jpg|jpeg|svg|ico)$/)
@@ -48,9 +49,14 @@ export async function updateSession(request: NextRequest) {
   });
 
   try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // 2.5-second timeout — prevent middleware from blocking requests if Supabase is slow
+    const authResult = await Promise.race([
+      supabase.auth.getUser(),
+      new Promise<{ data: { user: null } }>((resolve) =>
+        setTimeout(() => resolve({ data: { user: null } }), 2500)
+      ),
+    ]);
+    const user = authResult.data.user;
 
     // Protect /account route
     if (!user && path.startsWith("/account")) {

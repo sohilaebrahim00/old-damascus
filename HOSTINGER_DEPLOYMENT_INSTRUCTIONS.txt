@@ -1,0 +1,148 @@
+====================================================
+  Old Damascus — Hostinger Node.js Deployment Guide
+====================================================
+
+Target: Hostinger Web Apps / Node.js App (NOT static public_html)
+Framework: Next.js 16 (SSR — server-side rendering required)
+Node version: 22
+
+====================================================
+  STEP 1 — Connect GitHub Repository
+====================================================
+
+1. Log in to Hostinger hPanel.
+2. Go to: Websites → Manage → Web Apps  (or "Node.js App").
+3. Click "Create Application" or "Add New App".
+4. Choose: "Connect GitHub repository".
+5. Authorize Hostinger to access your GitHub account.
+6. Select repository: sohilaebrahim00/old-damascus
+7. Select branch: main
+
+====================================================
+  STEP 2 — Build & Start Settings
+====================================================
+
+Build command:
+  npm install && npm run build
+
+Start command:
+  npm run start
+
+Node.js version:
+  22
+
+Do NOT change the start command to anything else.
+Do NOT use: node server.js, node index.js, or pm2.
+Do NOT enable static site / static hosting mode.
+
+====================================================
+  STEP 3 — Environment Variables
+====================================================
+
+Add the following in the Hostinger panel under:
+  Web Apps → Your App → Environment Variables
+
+Required variables:
+
+  NEXT_PUBLIC_SUPABASE_URL          = (your Supabase project URL)
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = (your Supabase publishable/anon key)
+  NEXT_PUBLIC_SUPABASE_ANON_KEY     = (same as publishable key)
+  NEXT_PUBLIC_SITE_URL              = https://yourdomain.com
+  NEXT_PUBLIC_APP_URL               = https://yourdomain.com
+  NEXT_PUBLIC_ENABLE_LIVE_CHECKOUT  = false
+
+Optional (only if Clover credentials are ready):
+  CLOVER_ENV                        = production
+  CLOVER_MERCHANT_ID                = (from Clover dashboard)
+  CLOVER_ACCESS_TOKEN               = (from Clover dashboard)
+  CLOVER_APP_ID                     = (from Clover dashboard)
+  CLOVER_APP_SECRET                 = (from Clover dashboard)
+  NEXT_PUBLIC_CLOVER_PUBLIC_TOKEN   = (Clover ecom public key)
+  CLOVER_PRIVATE_TOKEN              = (Clover ecom private key)
+
+Do NOT set CLOVER credentials until real values are confirmed.
+Do NOT paste .env.local values directly — type them manually.
+
+====================================================
+  STEP 4 — Files You Must NOT Upload
+====================================================
+
+Never upload these to Hostinger:
+  - .env.local
+  - .env
+  - node_modules/ directory
+  - .next/ directory (Hostinger builds this automatically)
+  - Any file containing real API tokens or secrets
+
+The build pipeline handles all of this automatically.
+
+====================================================
+  STEP 5 — Deploy
+====================================================
+
+1. After setting environment variables, click "Deploy".
+2. Hostinger will run: npm install && npm run build
+3. Then start the app with: npm run start
+4. App will listen on the port assigned by Hostinger
+   (Next.js reads PORT env variable automatically).
+
+====================================================
+  STEP 6 — Verify After Deploy
+====================================================
+
+Test these URLs after deployment:
+
+  https://yourdomain.com/
+    → Homepage loads (Mediterranean cuisine, packages show weekly prices)
+
+  https://yourdomain.com/api/health
+    → Returns JSON immediately:
+      {
+        "status": "ok",
+        "supabaseConfigured": true or false,
+        "cloverConfigured": false,
+        "liveCheckoutEnabled": false
+      }
+
+  https://yourdomain.com/menu
+    → Menu loads using local seed data (no Clover required)
+
+  https://yourdomain.com/catering
+    → Catering form renders correctly
+
+====================================================
+  STEP 7 — Important Notes
+====================================================
+
+- This is a Next.js SSR application. It requires a running
+  Node.js process — it cannot be deployed to static hosting.
+
+- All pages render server-side. Public pages (homepage, menu,
+  about, catering, contact) do not require Supabase or Clover
+  to be configured. They will load using local seed data.
+
+- If Supabase is not configured, all users appear as logged out.
+  This is safe and expected behavior.
+
+- If Clover is not configured, the menu uses local seed data.
+  This is safe and expected behavior.
+
+- Live checkout is permanently disabled until the flag is changed:
+  NEXT_PUBLIC_ENABLE_LIVE_CHECKOUT=false
+
+- The app uses port from the PORT environment variable.
+  Hostinger sets this automatically. No manual port config needed.
+
+====================================================
+  QUICK REFERENCE
+====================================================
+
+  Repository:    https://github.com/sohilaebrahim00/old-damascus
+  Branch:        main
+  Build command: npm install && npm run build
+  Start command: npm run start
+  Node version:  22
+  Framework:     Next.js 16 (SSR)
+  Hosting type:  Node.js App (NOT static)
+
+====================================================
