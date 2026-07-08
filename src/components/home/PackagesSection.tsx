@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { staggerContainer, fadeUp, modalReveal } from "@/lib/motion";
+import { trackEvent } from "@/lib/analytics";
 
 const packageInquirySchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -45,6 +46,8 @@ export function PackagesSection() {
     setIsSubmitted(false);
     setError(null);
     reset({ packageId: pkg.id });
+    
+    trackEvent("package_inquiry_open", { package_id: pkg.id, package_name: pkg.name });
   };
 
   const closeForm = () => {
@@ -75,9 +78,11 @@ export function PackagesSection() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to submit request. Please try again.");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || res.statusText || "Failed to submit request. Please try again.");
       }
 
+      trackEvent("package_inquiry_submit", { package_id: data.packageId });
       setIsSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");

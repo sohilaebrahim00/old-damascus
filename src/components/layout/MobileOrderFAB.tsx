@@ -7,6 +7,7 @@ import { ShoppingBag, X, Phone, ExternalLink } from "lucide-react";
 import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
 import { staggerContainer, fadeUp } from "@/lib/motion";
+import { trackEvent } from "@/lib/analytics";
 
 export function MobileOrderFAB() {
   const pathname = usePathname();
@@ -108,7 +109,10 @@ export function MobileOrderFAB() {
                   href={restaurant.doordashUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    trackEvent("doordash_click", { source: "mobile_fab" });
+                    setIsOpen(false);
+                  }}
                   className="w-full py-4 px-4 border border-border text-olive-dark bg-white rounded-xl font-semibold flex items-center justify-between hover:border-brand-dark transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                 >
                   <div className="flex items-center gap-3">
@@ -122,7 +126,10 @@ export function MobileOrderFAB() {
                   href={restaurant.uberEatsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    trackEvent("ubereats_click", { source: "mobile_fab" });
+                    setIsOpen(false);
+                  }}
                   className="w-full py-4 px-4 border border-border text-olive-dark bg-white rounded-xl font-semibold flex items-center justify-between hover:border-brand-dark transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                 >
                   <div className="flex items-center gap-3">
@@ -134,7 +141,10 @@ export function MobileOrderFAB() {
                 <motion.a
                   variants={fadeUp}
                   href={restaurant.phoneUrl}
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    trackEvent("call_click", { source: "mobile_fab" });
+                    setIsOpen(false);
+                  }}
                   className="w-full py-4 px-4 border border-border text-olive-dark bg-cream rounded-xl font-semibold flex items-center gap-3 hover:bg-cream-warm transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none mt-2"
                 >
                   <Phone className="w-5 h-5 text-brand-dark" />

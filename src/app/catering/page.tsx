@@ -8,6 +8,7 @@ import { CheckCircle, AlertCircle, Phone, Sparkles, UtensilsCrossed, Truck, Load
 import { restaurant } from "@/config/restaurant";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/motion";
+import { trackEvent } from "@/lib/analytics";
 
 const cateringSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -68,9 +69,11 @@ export default function CateringPage() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to submit request. Please try again.");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || res.statusText || "Failed to submit request. Please try again.");
       }
 
+      trackEvent("catering_submit", { guest_count: data.guestCount, event_date: data.eventDate });
       setIsSubmitted(true);
       reset();
     } catch (err) {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { processLead, LeadData } from "@/lib/lead-manager";
 
 export async function POST(req: Request) {
   try {
@@ -9,12 +10,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Spam detected." }, { status: 400 });
     }
 
-    console.log("[Contact API] Received contact message:", data);
+    const leadData: LeadData = {
+      type: data.type === "Package Inquiry" ? "package_inquiry" : "contact",
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      subject: data.subject,
+      message: data.message,
+      notes: data.notes,
+      packageId: data.packageId,
+      startDate: data.startDate,
+    };
 
-    return NextResponse.json({
-      success: true,
-      message: "Message recorded successfully.",
-    });
+    const result = await processLead(leadData);
+
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        message: "Message recorded successfully.",
+      });
+    } else {
+      return NextResponse.json({ error: result.error }, { status: 500 });
+    }
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },

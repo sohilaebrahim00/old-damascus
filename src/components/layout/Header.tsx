@@ -18,6 +18,7 @@ import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
 import { cn } from "@/lib/utils";
 import { fadeUp } from "@/lib/motion";
+import { trackEvent } from "@/lib/analytics";
 
 // Timezone for Texas (Central Time)
 const TIMEZONE = "America/Chicago";
@@ -136,6 +137,7 @@ export function Header({ isAuthenticated }: { isAuthenticated?: boolean }) {
           </div>
           <a
             href={restaurant.phoneUrl}
+            onClick={() => trackEvent("call_click", { source: "header" })}
             className="hidden sm:flex items-center gap-1.5 hover:text-brand-lime transition-colors font-semibold"
           >
             <Phone className="w-3.5 h-3.5" />

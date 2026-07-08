@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { processLead, LeadData } from "@/lib/lead-manager";
 
 export async function POST(req: Request) {
   try {
@@ -9,14 +10,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Spam detected." }, { status: 400 });
     }
 
-    // Since Supabase might not be fully configured yet in development,
-    // let's log the catering request and return success.
-    console.log("[Catering API] Received request:", data);
+    const leadData: LeadData = {
+      type: "catering",
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      eventDate: data.eventDate,
+      guestCount: data.guestCount,
+      message: data.notes,
+    };
 
-    return NextResponse.json({
-      success: true,
-      message: "Catering request recorded successfully.",
-    });
+    const result = await processLead(leadData);
+
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        message: "Catering request recorded successfully.",
+      });
+    } else {
+      return NextResponse.json({ error: result.error }, { status: 500 });
+    }
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 import { ShoppingBag, Eye, Leaf, Flame, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import type { MenuItem } from "@/types";
@@ -48,6 +49,14 @@ export function FeaturedMenu({ items }: FeaturedMenuProps) {
       image: item.image,
       selectedModifiers: [],
       categoryName: item.categoryName,
+    });
+
+    trackEvent("add_to_cart", {
+      item_id: item.id,
+      item_name: item.name,
+      price: item.price,
+      item_category: item.categoryName,
+      quantity: 1,
     });
   };
 

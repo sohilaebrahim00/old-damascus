@@ -15,6 +15,7 @@ import { currentYear, isSocialUrlValid } from "@/lib/utils";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { motion } from "framer-motion";
 import { staggerContainer, fadeUp, zoomIn } from "@/lib/motion";
+import { trackEvent } from "@/lib/analytics";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -121,6 +122,7 @@ export function Footer() {
                 href={restaurant.doordashUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent("doordash_click", { source: "footer" })}
                 className="text-sm text-white/75 hover:text-white transition-colors flex items-center gap-1.5"
               >
                 DoorDash
@@ -132,6 +134,7 @@ export function Footer() {
                 href={restaurant.uberEatsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent("ubereats_click", { source: "footer" })}
                 className="text-sm text-white/75 hover:text-white transition-colors flex items-center gap-1.5"
               >
                 Uber Eats
@@ -143,6 +146,7 @@ export function Footer() {
                 href={restaurant.googleReviewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent("google_review_click", { source: "footer" })}
                 className="text-sm text-white/75 hover:text-white transition-colors flex items-center gap-1.5"
               >
                 <Star className="w-3 h-3 fill-brand-gold text-brand-gold" />
@@ -173,6 +177,7 @@ export function Footer() {
             <li>
               <a
                 href={restaurant.phoneUrl}
+                onClick={() => trackEvent("call_click", { source: "footer" })}
                 className="flex items-center gap-3 text-sm text-white/75 hover:text-white transition-colors"
               >
                 <Phone className="w-4 h-4 flex-shrink-0 text-brand-lime" />

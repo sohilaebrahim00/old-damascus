@@ -89,7 +89,8 @@ export default function ContactPage() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to send message. Please try again later.");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || res.statusText || "Failed to send message. Please try again later.");
       }
 
       setIsSubmitted(true);

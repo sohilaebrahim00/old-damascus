@@ -61,9 +61,8 @@ export const restaurant = {
 
   // SEO
   seo: {
-    titleTemplate: "%s | Old Damascus – Mediterranean Restaurant in Richardson, TX",
-    defaultTitle:
-      "Old Damascus | Mediterranean Restaurant in Richardson, TX",
+    titleTemplate: "%s | Old Damascus Mediterranean Restaurant",
+    defaultTitle: "Old Damascus Mediterranean Restaurant",
     defaultDescription:
       "Discover authentic Mediterranean cuisine at Old Damascus in Richardson, Texas. Browse our menu and order directly, through DoorDash, or through Uber Eats.",
     keywords: [

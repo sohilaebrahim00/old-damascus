@@ -10,6 +10,7 @@ import { formatPrice, cn } from "@/lib/utils";
 import { getMenuItemMapping } from "@/data/menu-image-map";
 import { motion } from "framer-motion";
 import { staggerContainer, fadeUp } from "@/lib/motion";
+import { trackEvent } from "@/lib/analytics";
 
 interface MenuPageClientProps {
   items: MenuItem[];
@@ -128,6 +129,14 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
       image: item.image,
       selectedModifiers: [],
       categoryName: item.categoryName,
+    });
+    
+    trackEvent("add_to_cart", {
+      item_id: item.id,
+      item_name: item.name,
+      price: item.price,
+      item_category: item.categoryName,
+      quantity: 1,
     });
   };
 

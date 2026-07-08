@@ -10,6 +10,8 @@ import { Toaster } from "@/components/ui/Toaster";
 import { restaurant } from "@/config/restaurant";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { MotionProvider } from "@/components/providers/MotionProvider";
+import { OfferBanner } from "@/components/layout/OfferBanner";
+import Script from "next/script";
 
 // ---- Fonts ----
 const cormorant = Cormorant_Garamond({
@@ -97,9 +99,60 @@ export default async function RootLayout({
       lang="en"
       className={`${cormorant.variable} ${manrope.variable}`}
     >
+      <head>
+        <Script
+          id="local-business-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Restaurant",
+              name: restaurant.name,
+              image: `${process.env.NEXT_PUBLIC_SITE_URL}/og-image.jpg`,
+              "@id": process.env.NEXT_PUBLIC_SITE_URL,
+              url: process.env.NEXT_PUBLIC_SITE_URL,
+              telephone: restaurant.phone,
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: restaurant.address.street,
+                addressLocality: restaurant.address.city,
+                addressRegion: restaurant.address.state,
+                postalCode: restaurant.address.zip,
+                addressCountry: "US",
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: 32.9733,
+                longitude: -96.7399,
+              },
+              openingHoursSpecification: [
+                {
+                  "@type": "OpeningHoursSpecification",
+                  dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+                  opens: "11:00",
+                  closes: "21:00",
+                },
+                {
+                  "@type": "OpeningHoursSpecification",
+                  dayOfWeek: ["Friday", "Saturday"],
+                  opens: "11:00",
+                  closes: "22:00",
+                },
+              ],
+              sameAs: [
+                restaurant.googleReviewUrl,
+                restaurant.doordashUrl,
+                restaurant.uberEatsUrl,
+              ],
+              servesCuisine: "Mediterranean",
+            }),
+          }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col bg-cream text-olive-dark">
         <MotionProvider>
           <CartProvider>
+            <OfferBanner />
             <Header isAuthenticated={!!user} />
             <main className="flex-1 pb-16 lg:pb-0">{children}</main>
             <Footer />
