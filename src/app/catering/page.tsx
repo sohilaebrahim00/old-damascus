@@ -4,7 +4,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { CheckCircle, AlertCircle, Phone, Sparkles, UtensilsCrossed, Truck } from "lucide-react";
+import { CheckCircle, AlertCircle, Phone, Sparkles, UtensilsCrossed, Truck, Loader2 } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
 
 const cateringSchema = z.object({
@@ -147,7 +147,7 @@ export default function CateringPage() {
                     id="name"
                     type="text"
                     {...register("name")}
-                    className="input"
+                    className="input focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                     placeholder="John Doe"
                   />
                   {errors.name && <p className="text-xs text-error mt-1">{errors.name.message}</p>}
@@ -159,7 +159,7 @@ export default function CateringPage() {
                     id="email"
                     type="email"
                     {...register("email")}
-                    className="input"
+                    className="input focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                     placeholder="john@example.com"
                   />
                   {errors.email && <p className="text-xs text-error mt-1">{errors.email.message}</p>}
@@ -173,7 +173,7 @@ export default function CateringPage() {
                     id="phone"
                     type="tel"
                     {...register("phone")}
-                    className="input"
+                    className="input focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                     placeholder="+1 (555) 555-5555"
                   />
                   {errors.phone && <p className="text-xs text-error mt-1">{errors.phone.message}</p>}
@@ -181,7 +181,7 @@ export default function CateringPage() {
 
                 <div>
                   <label htmlFor="eventType" className="label">Event Type</label>
-                  <select id="eventType" {...register("eventType")} className="input bg-white">
+                  <select id="eventType" {...register("eventType")} className="input bg-white focus-visible:ring-2 focus-visible:ring-brand-gold outline-none">
                     <option value="">Select Event Type</option>
                     {restaurant.catering.eventTypes.map((type) => (
                       <option key={type} value={type}>{type}</option>
@@ -194,13 +194,13 @@ export default function CateringPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="eventDate" className="label">Event Date</label>
-                  <input id="eventDate" type="date" {...register("eventDate")} className="input" />
+                  <input id="eventDate" type="date" {...register("eventDate")} className="input focus-visible:ring-2 focus-visible:ring-brand-gold outline-none" />
                   {errors.eventDate && <p className="text-xs text-error mt-1">{errors.eventDate.message}</p>}
                 </div>
 
                 <div>
                   <label htmlFor="eventTime" className="label">Preferred Time</label>
-                  <input id="eventTime" type="time" {...register("eventTime")} className="input" />
+                  <input id="eventTime" type="time" {...register("eventTime")} className="input focus-visible:ring-2 focus-visible:ring-brand-gold outline-none" />
                   {errors.eventTime && <p className="text-xs text-error mt-1">{errors.eventTime.message}</p>}
                 </div>
 
@@ -210,7 +210,7 @@ export default function CateringPage() {
                     id="guestCount"
                     type="number"
                     {...register("guestCount", { valueAsNumber: true })}
-                    className="input"
+                    className="input focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                   />
                   {errors.guestCount && <p className="text-xs text-error mt-1">{errors.guestCount.message}</p>}
                 </div>
@@ -219,7 +219,7 @@ export default function CateringPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="serviceType" className="label">Service Type</label>
-                  <select id="serviceType" {...register("serviceType")} className="input bg-white">
+                  <select id="serviceType" {...register("serviceType")} className="input bg-white focus-visible:ring-2 focus-visible:ring-brand-gold outline-none">
                     <option value="pickup">Pickup</option>
                     <option value="delivery">Delivery</option>
                   </select>
@@ -227,7 +227,7 @@ export default function CateringPage() {
 
                 <div>
                   <label htmlFor="budget" className="label">Estimated Budget</label>
-                  <select id="budget" {...register("budget")} className="input bg-white">
+                  <select id="budget" {...register("budget")} className="input bg-white focus-visible:ring-2 focus-visible:ring-brand-gold outline-none">
                     <option value="">Select Budget Range</option>
                     {restaurant.catering.budgetRanges.map((range) => (
                       <option key={range} value={range}>{range}</option>
@@ -244,7 +244,7 @@ export default function CateringPage() {
                     id="address"
                     type="text"
                     {...register("address")}
-                    className="input"
+                    className="input focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                     placeholder="Street Address, Suite, City, ZIP"
                   />
                 </div>
@@ -256,7 +256,7 @@ export default function CateringPage() {
                   id="notes"
                   rows={4}
                   {...register("notes")}
-                  className="input"
+                  className="input focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                   placeholder="Tell us what you'd like to serve, diet preferences, event details..."
                 />
               </div>
@@ -265,8 +265,9 @@ export default function CateringPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-primary flex-1 justify-center disabled:opacity-50"
+                  className="btn-primary flex-1 justify-center disabled:opacity-50 flex items-center gap-2"
                 >
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {loading ? "Submitting..." : "Submit Catering Request"}
                 </button>
                 <a

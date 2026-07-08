@@ -1,8 +1,23 @@
 "use client";
 
-import { Phone, CheckCircle2, Calendar, Utensils } from "lucide-react";
+import { CheckCircle2, Calendar, Utensils, X, AlertCircle } from "lucide-react";
 import { PACKAGES, type MealPackage } from "@/data/packages";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const packageInquirySchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  phone: z.string().min(10, "Phone number is required"),
+  packageId: z.string().min(1, "Please select a package"),
+  startDate: z.string().min(1, "Preferred start date is required"),
+  notes: z.string().optional(),
+  honeypot: z.string().max(0).optional(), // anti-spam
+});
+
+type PackageInquiryValues = z.infer<typeof packageInquirySchema>;
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -19,6 +34,69 @@ const cardVariants: Variants = {
 
 export function PackagesSection() {
   const availablePackages = PACKAGES.filter((p) => p.available);
+  const [selectedPackage, setSelectedPackage] = useState<MealPackage | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<PackageInquiryValues>({
+    resolver: zodResolver(packageInquirySchema),
+    defaultValues: {
+      notes: "",
+      honeypot: "",
+    },
+  });
+
+  const openForm = (pkg: MealPackage) => {
+    setSelectedPackage(pkg);
+    setIsSubmitted(false);
+    setError(null);
+    reset({ packageId: pkg.id });
+  };
+
+  const closeForm = () => {
+    setSelectedPackage(null);
+    setTimeout(() => {
+      setIsSubmitted(false);
+      setError(null);
+      reset();
+    }, 300);
+  };
+
+  const onSubmit = async (data: PackageInquiryValues) => {
+    if (data.honeypot) return; // bot block
+    setLoading(true);
+    setError(null);
+
+    const submitData = {
+      ...data,
+      type: "Package Inquiry",
+      subject: `Package Inquiry: ${PACKAGES.find(p => p.id === data.packageId)?.name}`,
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(submitData),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to submit request. Please try again.");
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section
@@ -49,7 +127,7 @@ export function PackagesSection() {
           viewport={{ once: true, margin: "-100px" }}
         >
           {availablePackages.map((pkg, idx) => (
-            <PackageCard key={pkg.id} pkg={pkg} index={idx} />
+            <PackageCard key={pkg.id} pkg={pkg} index={idx} onSubscribe={() => openForm(pkg)} />
           ))}
         </motion.div>
 
@@ -59,11 +137,118 @@ export function PackagesSection() {
           </p>
         </div>
       </div>
+
+      {/* Inquiry Form Modal */}
+      <AnimatePresence>
+        {selectedPackage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeForm}
+              className="absolute inset-0 bg-olive-dark/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden my-auto"
+            >
+              <div className="flex items-center justify-between p-5 border-b border-border bg-cream">
+                <h3 className="font-heading text-xl font-bold text-olive-dark">
+                  Inquire About Meal Plan
+                </h3>
+                <button
+                  onClick={closeForm}
+                  className="p-2 rounded-full hover:bg-white transition-colors text-olive"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6">
+                {isSubmitted ? (
+                  <div className="text-center py-8">
+                    <CheckCircle2 className="w-16 h-16 text-success mx-auto mb-4" />
+                    <h4 className="font-heading text-2xl font-semibold text-olive-dark mb-2">
+                      Request Received!
+                    </h4>
+                    <p className="text-olive mb-6">
+                      Thank you. We will contact you to activate your weekly meal plan.
+                    </p>
+                    <button onClick={closeForm} className="btn-primary">
+                      Close Window
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    {error && (
+                      <div className="p-3 bg-red-50 border border-error/20 text-error rounded-xl flex items-center gap-2 text-sm">
+                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                        {error}
+                      </div>
+                    )}
+
+                    <input type="text" {...register("honeypot")} className="hidden" />
+
+                    <div>
+                      <label htmlFor="packageId" className="label">Selected Package</label>
+                      <select id="packageId" {...register("packageId")} className="input bg-white">
+                        {availablePackages.map(p => (
+                          <option key={p.id} value={p.id}>{p.name} - ${p.price}/week</option>
+                        ))}
+                      </select>
+                      {errors.packageId && <p className="text-xs text-error mt-1">{errors.packageId.message}</p>}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="name" className="label">Your Name</label>
+                        <input id="name" type="text" {...register("name")} className="input" placeholder="John Doe" />
+                        {errors.name && <p className="text-xs text-error mt-1">{errors.name.message}</p>}
+                      </div>
+                      <div>
+                        <label htmlFor="phone" className="label">Phone Number</label>
+                        <input id="phone" type="tel" {...register("phone")} className="input" placeholder="(555) 555-5555" />
+                        {errors.phone && <p className="text-xs text-error mt-1">{errors.phone.message}</p>}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="startDate" className="label">Preferred Start Date</label>
+                      <input id="startDate" type="date" {...register("startDate")} className="input" />
+                      {errors.startDate && <p className="text-xs text-error mt-1">{errors.startDate.message}</p>}
+                    </div>
+
+                    <div>
+                      <label htmlFor="notes" className="label">Additional Notes / Dietary Requests</label>
+                      <textarea id="notes" rows={3} {...register("notes")} className="input" placeholder="Any specific requirements?" />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="btn-primary w-full justify-center mt-2"
+                    >
+                      {loading ? "Submitting..." : "Submit Inquiry"}
+                    </button>
+                    <p className="text-xs text-center text-olive mt-3">
+                      This does not charge your card. We will call you to confirm.
+                    </p>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
 
-function PackageCard({ pkg, index }: { pkg: MealPackage; index: number }) {
+function PackageCard({ pkg, index, onSubscribe }: { pkg: MealPackage; index: number; onSubscribe: () => void }) {
   // Use a slightly different gradient for the second card to make them visually distinct
   const bgClass = index === 0
     ? "bg-gradient-to-br from-brand-olive to-brand-dark"
@@ -110,19 +295,12 @@ function PackageCard({ pkg, index }: { pkg: MealPackage; index: number }) {
       </div>
 
       <div className="relative z-10 mt-auto">
-        {pkg.orderable ? (
-          <button className="w-full py-4 rounded-xl font-semibold text-brand-dark bg-brand-gold hover:brightness-110 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2">
-            {pkg.ctaText}
-          </button>
-        ) : (
-          <a
-            href="tel:+14697285635"
-            className="w-full py-4 rounded-xl font-semibold text-brand-dark bg-brand-gold hover:brightness-110 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2"
-          >
-            <Phone className="w-5 h-5" />
-            {pkg.ctaText}
-          </a>
-        )}
+        <button
+          onClick={onSubscribe}
+          className="w-full py-4 rounded-xl font-semibold text-brand-dark bg-brand-gold hover:brightness-110 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+        >
+          {pkg.ctaText}
+        </button>
       </div>
     </motion.div>
   );

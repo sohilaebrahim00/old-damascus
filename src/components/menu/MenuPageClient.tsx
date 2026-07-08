@@ -77,7 +77,8 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
       result = result.filter(
         (item) =>
           item.name.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q)
+          item.description.toLowerCase().includes(q) ||
+          item.categoryName?.toLowerCase().includes(q)
       );
     }
 

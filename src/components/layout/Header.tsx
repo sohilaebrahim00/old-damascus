@@ -18,6 +18,36 @@ import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
 import { cn } from "@/lib/utils";
 
+// Timezone for Texas (Central Time)
+const TIMEZONE = "America/Chicago";
+
+function getRestaurantStatus() {
+  const now = new Date();
+  // Get time in Central Time
+  const options = { timeZone: TIMEZONE, weekday: "long", hour: "numeric", minute: "numeric", hour12: false } as const;
+  const parts = new Intl.DateTimeFormat("en-US", options).formatToParts(now);
+  
+  let weekday = "";
+  let hour = 0;
+  let minute = 0;
+  
+  for (const part of parts) {
+    if (part.type === "weekday") weekday = part.value;
+    if (part.type === "hour") hour = parseInt(part.value, 10);
+    if (part.type === "minute") minute = parseInt(part.value, 10);
+  }
+  
+  const timeInMinutes = hour * 60 + minute;
+  const openTime = 11 * 60; // 11:00 AM
+  
+  let closeTime = 21 * 60; // 9:00 PM for Sun-Thu
+  if (weekday === "Friday" || weekday === "Saturday") {
+    closeTime = 22 * 60; // 10:00 PM for Fri-Sat
+  }
+  
+  return timeInMinutes >= openTime && timeInMinutes < closeTime ? "open" : "closed";
+}
+
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
@@ -34,11 +64,20 @@ export function Header({ isAuthenticated }: { isAuthenticated?: boolean }) {
   const totalItems = getTotalItems();
   const mobileRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [openStatus, setOpenStatus] = useState<"loading" | "open" | "closed">("loading");
 
-  // Mount detection for hydration
+  // Mount detection for hydration and status check
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
+    setOpenStatus(getRestaurantStatus());
+    
+    // Update every minute to keep it accurate
+    const interval = setInterval(() => {
+      setOpenStatus(getRestaurantStatus());
+    }, 60000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Scroll detection
@@ -76,9 +115,24 @@ export function Header({ isAuthenticated }: { isAuthenticated?: boolean }) {
             <MapPin className="w-3.5 h-3.5" />
             {restaurant.address.street}, {restaurant.address.city}
           </span>
-          <span className="font-semibold tracking-wide flex-1 sm:flex-none text-center">
-            Fresh Mediterranean Cuisine — Pickup & Delivery
-          </span>
+          <div className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-[11px] sm:text-xs">
+            {openStatus === "loading" ? (
+              <span className="opacity-0">Loading...</span>
+            ) : openStatus === "open" ? (
+              <span className="flex items-center gap-1.5 font-semibold text-brand-lime bg-white/10 px-2 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-lime animate-pulse" />
+                Open Now
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 font-semibold text-red-400 bg-white/10 px-2 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                Closed Now
+              </span>
+            )}
+            <span className="hidden sm:inline opacity-70">
+              (Hours subject to change. Call to confirm)
+            </span>
+          </div>
           <a
             href={restaurant.phoneUrl}
             className="hidden sm:flex items-center gap-1.5 hover:text-brand-lime transition-colors font-semibold"

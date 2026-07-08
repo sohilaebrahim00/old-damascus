@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { StickyMobileCart } from "@/components/cart/StickyMobileCart";
+import { MobileOrderFAB } from "@/components/layout/MobileOrderFAB";
 import { Toaster } from "@/components/ui/Toaster";
 import { restaurant } from "@/config/restaurant";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
@@ -103,6 +104,7 @@ export default async function RootLayout({
             <main className="flex-1 pb-16 lg:pb-0">{children}</main>
             <Footer />
             <StickyMobileCart />
+            <MobileOrderFAB />
             <Toaster />
           </CartProvider>
         </MotionProvider>

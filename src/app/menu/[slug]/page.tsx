@@ -12,6 +12,7 @@ import {
 import { getMenuItemBySlug } from "@/services/menu.service";
 import { formatPrice } from "@/lib/utils";
 import { AddToCartSection } from "@/components/menu/AddToCartSection";
+import { ShareButton } from "@/components/menu/ShareButton";
 import { restaurant } from "@/config/restaurant";
 
 interface Props {
@@ -126,6 +127,13 @@ export default async function MenuItemPage({ params }: Props) {
                   >
                     Uber Eats <ExternalLink className="w-3 h-3" />
                   </a>
+                  
+                  <div className="ml-auto">
+                    <ShareButton 
+                      title={`${item.name} | Old Damascus Menu`} 
+                      url={`${process.env.NEXT_PUBLIC_SITE_URL}/menu/${item.slug}`} 
+                    />
+                  </div>
                 </div>
               </div>
             </div>

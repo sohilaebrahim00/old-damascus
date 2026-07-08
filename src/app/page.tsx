@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { HeroSection } from "@/components/home/HeroSection";
 import { OrderingOptions } from "@/components/home/OrderingOptions";
 import { FeaturedMenu } from "@/components/home/FeaturedMenu";
+import { CustomerFavorites } from "@/components/home/CustomerFavorites";
 import { CategoryPreview } from "@/components/home/CategoryPreview";
 import { PackagesSection } from "@/components/home/PackagesSection";
 import { AboutPreview } from "@/components/home/AboutPreview";
@@ -102,6 +103,7 @@ export default async function HomePage() {
       <HeroSection />
       <OrderingOptions />
       <FeaturedMenu items={displayItems} />
+      <CustomerFavorites items={featuredItems} />
       {/* Packages / Deals Section */}
       <PackagesSection />
 
