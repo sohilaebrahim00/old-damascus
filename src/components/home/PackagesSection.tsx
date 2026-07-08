@@ -243,21 +243,27 @@ export function PackagesSection() {
 }
 
 function PackageCard({ pkg, index, onSubscribe }: { pkg: MealPackage; index: number; onSubscribe: () => void }) {
-  // Use a slightly different gradient for the second card to make them visually distinct
-  const bgClass = index === 0
-    ? "bg-gradient-to-br from-brand-olive to-brand-dark"
-    : "bg-gradient-to-br from-olive-dark to-[#1A3300]";
+  const isPremium = index === 1;
+  const bgClass = isPremium
+    ? "bg-brand-dark ring-2 ring-brand-gold shadow-[0_0_30px_rgba(198,161,91,0.15)]"
+    : "bg-olive-dark";
 
   return (
     <motion.div
       variants={fadeUp}
       whileHover={{ 
         y: -4, 
-        boxShadow: "0 10px 40px -10px rgba(198,161,91,0.3)",
+        boxShadow: isPremium ? "0 10px 40px -10px rgba(198,161,91,0.4)" : "0 10px 40px -10px rgba(0,0,0,0.3)",
         transition: { duration: 0.3 } 
       }}
       className={`rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden flex flex-col group transition-all duration-300 ${bgClass}`}
     >
+      {isPremium && (
+        <div className="absolute top-0 right-0 bg-brand-gold text-brand-dark text-xs font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">
+          Most Popular
+        </div>
+      )}
+      
       {/* Decorative Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
 
@@ -292,10 +298,14 @@ function PackageCard({ pkg, index, onSubscribe }: { pkg: MealPackage; index: num
         </ul>
       </div>
 
-      <div className="relative z-10 mt-auto">
+      <div className="relative z-10 mt-auto pt-6">
         <button
           onClick={onSubscribe}
-          className="w-full py-4 rounded-xl font-semibold text-brand-dark bg-brand-gold hover:bg-yellow-400 active:scale-[0.98] transition-all shadow-lg hover:shadow-xl hover:-translate-y-[2px] flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+          className={`w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-offset-2 outline-none ${
+            isPremium
+              ? "text-brand-dark bg-brand-gold hover:bg-yellow-400 shadow-[0_4px_14px_0_rgba(198,161,91,0.39)] focus-visible:ring-brand-gold"
+              : "text-white bg-white/10 hover:bg-white/20 border border-white/20 focus-visible:ring-white"
+          }`}
         >
           {pkg.ctaText}
         </button>
