@@ -258,12 +258,6 @@ function PackageCard({ pkg, index, onSubscribe }: { pkg: MealPackage; index: num
       }}
       className={`rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden flex flex-col group transition-all duration-300 ${bgClass}`}
     >
-      {isPremium && (
-        <div className="absolute top-0 right-0 bg-brand-gold text-brand-dark text-xs font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">
-          Most Popular
-        </div>
-      )}
-      
       {/* Decorative Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
 
