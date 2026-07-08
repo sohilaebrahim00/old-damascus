@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { ChevronLeft, ChevronRight, Utensils } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ImageGalleryProps {
   primaryImage: string;
@@ -32,22 +33,38 @@ export function ImageGallery({ primaryImage, images, alt, categoryName }: ImageG
       aria-label="Image Gallery"
     >
       <div className="relative h-72 sm:h-96 w-full bg-cream overflow-hidden flex items-center justify-center">
-        {allImages[currentIndex] ? (
-          <ImageWithFallback
-            key={allImages[currentIndex]}
-            src={allImages[currentIndex]}
-            alt={`${alt} - Image ${currentIndex + 1}`}
-            fill
-            className="object-cover transition-opacity duration-500 z-0 opacity-100"
-            priority
-            sizes="(max-width: 896px) 100vw, 896px"
-          />
-        ) : (
-          <div className="w-full h-full bg-olive-light/10 flex flex-col items-center justify-center text-olive p-4 text-center">
+        <AnimatePresence initial={false} mode="wait">
+          {allImages[currentIndex] ? (
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0"
+            >
+              <ImageWithFallback
+                src={allImages[currentIndex]}
+                alt={`${alt} - Image ${currentIndex + 1}`}
+                fill
+                className="object-cover z-0 opacity-100"
+                priority
+                sizes="(max-width: 896px) 100vw, 896px"
+              />
+            </motion.div>
+          ) : (
+          <motion.div 
+            key="fallback"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="w-full h-full bg-olive-light/10 flex flex-col items-center justify-center text-olive p-4 text-center"
+          >
             <Utensils className="w-12 h-12 mb-2 opacity-50" />
             <span className="text-sm font-medium opacity-80">Image unavailable</span>
-          </div>
-        )}
+          </motion.div>
+          )}
+        </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         <span className="absolute bottom-4 left-4 px-3 py-1 bg-brand-dark text-white text-xs font-semibold rounded-full z-10">
           {categoryName}
@@ -57,14 +74,14 @@ export function ImageGallery({ primaryImage, images, alt, categoryName }: ImageG
           <>
             <button
               onClick={prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors backdrop-blur-sm"
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-all duration-200 active:scale-90 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors backdrop-blur-sm"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-all duration-200 active:scale-90 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
               aria-label="Next image"
             >
               <ChevronRight className="w-6 h-6" />

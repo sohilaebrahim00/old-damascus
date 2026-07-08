@@ -13,6 +13,8 @@ import {
 import { restaurant } from "@/config/restaurant";
 import { currentYear, isSocialUrlValid } from "@/lib/utils";
 import { InstallButton } from "@/components/pwa/InstallButton";
+import { motion } from "framer-motion";
+import { staggerContainer, fadeUp, zoomIn } from "@/lib/motion";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -26,9 +28,15 @@ export function Footer() {
   return (
     <footer className="bg-brand-olive text-white relative overflow-hidden">
       {/* Main Footer */}
-      <div className="container-site py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <motion.div 
+        className="container-site py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+      >
         {/* Brand Column */}
-        <div className="lg:col-span-1">
+        <motion.div variants={fadeUp} className="lg:col-span-1">
           <Link href="/" className="block mb-4">
             <Image
               src="/brand/old-damascus-logo-transparent.png"
@@ -76,10 +84,10 @@ export function Footer() {
             {/* TikTok and YouTube icons via text when social URLs are added */}
           </div>
           <InstallButton />
-        </div>
+        </motion.div>
 
         {/* Navigation */}
-        <div>
+        <motion.div variants={fadeUp}>
           <h3 className="font-heading text-base font-semibold text-white mb-4">
             Pages
           </h3>
@@ -143,10 +151,10 @@ export function Footer() {
               </a>
             </li>
           </ul>
-        </div>
+        </motion.div>
 
         {/* Contact Info */}
-        <div>
+        <motion.div variants={fadeUp}>
           <h3 className="font-heading text-base font-semibold text-white mb-4">
             Contact
           </h3>
@@ -181,10 +189,10 @@ export function Footer() {
               </a>
             </li>
           </ul>
-        </div>
+        </motion.div>
 
         {/* Hours */}
-        <div>
+        <motion.div variants={fadeUp}>
           <h3 className="font-heading text-base font-semibold text-white mb-4">
             <Clock className="w-4 h-4 inline mr-2 text-brand-lime" />
             Hours
@@ -202,21 +210,28 @@ export function Footer() {
           <p className="text-xs text-white/50 mt-3">
             * Hours subject to change. Call to confirm.
           </p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Bottom Bar */}
       <div className="border-t border-white/10 relative z-10">
         <div className="container-site py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
           <div className="flex items-center gap-2">
             <span>&copy; {currentYear()} {restaurant.name}</span>
-            <Image 
-              src="/brand/old-damascus-star-transparent.png"
-              alt="Brand Star"
-              width={16}
-              height={16}
-              className="w-3 h-3 opacity-80 animate-in fade-in zoom-in duration-500 delay-300"
-            />
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 0.8 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Image 
+                src="/brand/old-damascus-star-transparent.png"
+                alt="Brand Star"
+                width={16}
+                height={16}
+                className="w-3 h-3"
+              />
+            </motion.div>
             <span>All rights reserved.</span>
           </div>
           <div className="flex items-center gap-4">

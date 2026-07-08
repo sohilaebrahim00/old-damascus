@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { staggerContainer, fadeUp, modalReveal } from "@/lib/motion";
 
 const packageInquirySchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -18,19 +19,6 @@ const packageInquirySchema = z.object({
 });
 
 type PackageInquiryValues = z.infer<typeof packageInquirySchema>;
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
 
 export function PackagesSection() {
   const availablePackages = PACKAGES.filter((p) => p.available);
@@ -121,7 +109,7 @@ export function PackagesSection() {
 
         <motion.div
           className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto"
-          variants={containerVariants}
+          variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -150,9 +138,10 @@ export function PackagesSection() {
               className="absolute inset-0 bg-olive-dark/60 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              variants={modalReveal}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
               className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden my-auto"
             >
               <div className="flex items-center justify-between p-5 border-b border-border bg-cream">
@@ -256,9 +245,13 @@ function PackageCard({ pkg, index, onSubscribe }: { pkg: MealPackage; index: num
 
   return (
     <motion.div
-      variants={cardVariants}
-      whileHover={{ y: -8, transition: { duration: 0.2 } }}
-      className={`rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden flex flex-col group ${bgClass}`}
+      variants={fadeUp}
+      whileHover={{ 
+        y: -4, 
+        boxShadow: "0 10px 40px -10px rgba(198,161,91,0.3)",
+        transition: { duration: 0.3 } 
+      }}
+      className={`rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden flex flex-col group transition-all duration-300 ${bgClass}`}
     >
       {/* Decorative Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
@@ -272,7 +265,7 @@ function PackageCard({ pkg, index, onSubscribe }: { pkg: MealPackage; index: num
         </p>
 
         <div className="mb-8 pb-8 border-b border-white/20">
-          <div className="flex items-end gap-2 text-brand-gold">
+          <div className="flex items-end gap-2 text-brand-gold group-hover:text-yellow-400 transition-colors duration-300">
             <span className="text-4xl sm:text-5xl font-bold leading-none">${pkg.price}</span>
             <span className="text-white/70 text-lg mb-1">/ week</span>
           </div>
@@ -297,7 +290,7 @@ function PackageCard({ pkg, index, onSubscribe }: { pkg: MealPackage; index: num
       <div className="relative z-10 mt-auto">
         <button
           onClick={onSubscribe}
-          className="w-full py-4 rounded-xl font-semibold text-brand-dark bg-brand-gold hover:brightness-110 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+          className="w-full py-4 rounded-xl font-semibold text-brand-dark bg-brand-gold hover:bg-yellow-400 active:scale-[0.98] transition-all shadow-lg hover:shadow-xl hover:-translate-y-[2px] flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
         >
           {pkg.ctaText}
         </button>

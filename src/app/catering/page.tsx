@@ -6,6 +6,8 @@ import { z } from "zod";
 import { useState } from "react";
 import { CheckCircle, AlertCircle, Phone, Sparkles, UtensilsCrossed, Truck, Loader2 } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
+import { motion, AnimatePresence } from "framer-motion";
+import { fadeUp, staggerContainer } from "@/lib/motion";
 
 const cateringSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -93,27 +95,46 @@ export default function CateringPage() {
       </div>
 
       <div className="container-site py-16 max-w-3xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <div className="card p-5 text-center flex flex-col items-center justify-center">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
+          <motion.div variants={fadeUp} className="card p-5 text-center flex flex-col items-center justify-center">
             <Sparkles className="w-7 h-7 text-brand-olive mb-1" />
             <h3 className="font-semibold text-sm text-olive-dark mt-2">All Occasions</h3>
             <p className="text-xs text-olive mt-1">Corporate events, weddings, family platters & parties.</p>
-          </div>
-          <div className="card p-5 text-center flex flex-col items-center justify-center">
+          </motion.div>
+          <motion.div variants={fadeUp} className="card p-5 text-center flex flex-col items-center justify-center">
             <UtensilsCrossed className="w-7 h-7 text-brand-olive mb-1" />
             <h3 className="font-semibold text-sm text-olive-dark mt-2">Customizable Menus</h3>
             <p className="text-xs text-olive mt-1">Select from our grills, mandi, dynamic mezze & drinks.</p>
-          </div>
-          <div className="card p-5 text-center flex flex-col items-center justify-center">
+          </motion.div>
+          <motion.div variants={fadeUp} className="card p-5 text-center flex flex-col items-center justify-center">
             <Truck className="w-7 h-7 text-brand-olive mb-1" />
             <h3 className="font-semibold text-sm text-olive-dark mt-2">Delivery & Pickup</h3>
             <p className="text-xs text-olive mt-1">Convenient pickup or delivery direct to your location.</p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        <div className="card p-6 sm:p-8 bg-white">
-          {isSubmitted ? (
-            <div className="text-center py-10 space-y-4">
+        <motion.div 
+          className="card p-6 sm:p-8 bg-white"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
+          <AnimatePresence mode="wait">
+            {isSubmitted ? (
+              <motion.div 
+                key="success"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center py-10 space-y-4"
+              >
               <CheckCircle className="w-16 h-16 text-success mx-auto" />
               <h2 className="font-heading text-2xl font-semibold text-olive-dark">
                 Catering Request Submitted!
@@ -127,15 +148,29 @@ export default function CateringPage() {
               >
                 Submit Another Request
               </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {error && (
-                <div className="p-4 bg-red-50 border border-error/20 text-error rounded-xl flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm">{error}</span>
-                </div>
-              )}
+              </motion.div>
+            ) : (
+              <motion.form 
+                key="form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onSubmit={handleSubmit(onSubmit)} 
+                className="space-y-6"
+              >
+                <AnimatePresence>
+                  {error && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0, y: -10 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="p-4 bg-red-50 border border-error/20 text-error rounded-xl flex items-center gap-3 overflow-hidden"
+                    >
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                      <span className="text-sm">{error}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
               {/* Bot Honeypot */}
               <input type="text" {...register("honeypot")} className="hidden" />
@@ -278,9 +313,10 @@ export default function CateringPage() {
                   Call to Discuss
                 </a>
               </div>
-            </form>
-          )}
-        </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );

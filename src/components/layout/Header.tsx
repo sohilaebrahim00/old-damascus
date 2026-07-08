@@ -17,6 +17,7 @@ import {
 import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
 import { cn } from "@/lib/utils";
+import { fadeUp } from "@/lib/motion";
 
 // Timezone for Texas (Central Time)
 const TIMEZONE = "America/Chicago";
@@ -165,7 +166,10 @@ export function Header({ isAuthenticated }: { isAuthenticated?: boolean }) {
                 alt="Old Damascus Mediterranean Restaurant"
                 width={260}
                 height={130}
-                className="h-[50px] w-auto sm:h-[60px] lg:h-[68px] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                className={cn(
+                  "w-auto object-contain transition-all duration-500 group-hover:scale-[1.02]",
+                  scrolled ? "h-[45px] sm:h-[55px] lg:h-[62px]" : "h-[50px] sm:h-[60px] lg:h-[68px]"
+                )}
                 priority
               />
             </Link>
@@ -309,26 +313,35 @@ export function Header({ isAuthenticated }: { isAuthenticated?: boolean }) {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-2">
+              <motion.div 
+                className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-2"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } }
+                }}
+              >
                 {NAV_LINKS.map((link) => {
                   const isActive = pathname === link.href;
                   return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={cn(
-                        "flex items-center justify-between px-4 py-4 rounded-xl text-base font-semibold transition-colors",
-                        isActive
-                          ? "bg-brand-dark text-white shadow-md"
-                          : "text-olive-dark hover:bg-cream-warm hover:text-brand-dark"
-                      )}
-                    >
-                      {link.label}
-                      <ChevronRight className={cn("w-5 h-5", isActive ? "text-white/80" : "text-olive/40")} />
-                    </Link>
+                    <motion.div key={link.href} variants={fadeUp}>
+                      <Link
+                        href={link.href}
+                        className={cn(
+                          "flex items-center justify-between px-4 py-4 rounded-xl text-base font-semibold transition-colors",
+                          isActive
+                            ? "bg-brand-dark text-white shadow-md"
+                            : "text-olive-dark hover:bg-cream-warm hover:text-brand-dark"
+                        )}
+                      >
+                        {link.label}
+                        <ChevronRight className={cn("w-5 h-5", isActive ? "text-white/80" : "text-olive/40")} />
+                      </Link>
+                    </motion.div>
                   );
                 })}
-              </div>
+              </motion.div>
 
               <div className="p-6 bg-cream border-t border-border/50 space-y-4">
                 <div className="flex items-center justify-between">

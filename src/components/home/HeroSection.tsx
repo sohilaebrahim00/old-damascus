@@ -6,21 +6,7 @@ import { motion, Variants } from "framer-motion";
 import { ChevronRight, MapPin, UtensilsCrossed, Store, ShoppingBag, Truck, CheckCircle2 } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
 
-const fadeIn: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-};
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.1
-    }
-  }
-};
+import { staggerContainer, fadeUp, zoomIn } from "@/lib/motion";
 
 export function HeroSection() {
   return (
@@ -31,9 +17,9 @@ export function HeroSection() {
       {/* Background Image */}
       <motion.div 
         className="absolute inset-0"
-        initial={{ scale: 1.05, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
+        variants={zoomIn}
+        initial="hidden"
+        animate="visible"
       >
         <Image
           src="/restaurant/hero-bg.jpg"
@@ -58,7 +44,7 @@ export function HeroSection() {
         animate="visible"
       >
         <motion.h1 
-          variants={fadeIn}
+          variants={fadeUp}
           className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6 text-white drop-shadow-lg max-w-5xl mx-auto"
         >
           Authentic Mediterranean Flavor,{" "}
@@ -66,7 +52,7 @@ export function HeroSection() {
         </motion.h1>
 
         <motion.p 
-          variants={fadeIn}
+          variants={fadeUp}
           className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed mb-10"
         >
           Discover charcoal-grilled meats, shawarma, mandi, fresh mezze, family
@@ -76,7 +62,7 @@ export function HeroSection() {
 
         {/* CTA Buttons */}
         <motion.div 
-          variants={fadeIn}
+          variants={fadeUp}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
         >
           <Link
@@ -108,7 +94,7 @@ export function HeroSection() {
 
         {/* Info pills */}
         <motion.div 
-          variants={fadeIn}
+          variants={fadeUp}
           className="flex flex-wrap items-center justify-center gap-3"
         >
           <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-sm font-medium text-white/90 border border-white/20 shadow-sm">

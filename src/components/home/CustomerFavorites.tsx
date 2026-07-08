@@ -6,8 +6,9 @@ import { ShoppingBag, Eye, Leaf, CheckCircle, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import type { MenuItem } from "@/types";
 import { useCartStore } from "@/store/cart.store";
-import { formatPrice, cn } from "@/lib/utils";
 import { getMenuItemMapping } from "@/data/menu-image-map";
+import { staggerContainer, fadeUp } from "@/lib/motion";
+import { cn, formatPrice } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
 
 interface CustomerFavoritesProps {
@@ -57,7 +58,13 @@ export function CustomerFavorites({ items }: CustomerFavoritesProps) {
       aria-labelledby="customer-favorites-heading"
     >
       <div className="container-site">
-        <div className="text-center mb-10 flex flex-col items-center">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={fadeUp}
+          className="text-center mb-10 flex flex-col items-center"
+        >
           <Heart className="w-8 h-8 text-brand-dark mb-3" />
           <h2
             id="customer-favorites-heading"
@@ -68,34 +75,23 @@ export function CustomerFavorites({ items }: CustomerFavoritesProps) {
           <p className="section-subtitle max-w-xl mx-auto mt-2">
             The dishes our guests love the most. Hand-crafted fresh daily.
           </p>
-        </div>
+        </motion.div>
 
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          variants={{
-            visible: { transition: { staggerChildren: 0.1 } },
-            hidden: {}
-          }}
         >
           {normalizedItems.map((item) => (
             <motion.div
               key={item.id}
-              variants={{
-                hidden: { opacity: 0, y: 15, scale: 0.98 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0, 
-                  scale: 1, 
-                  transition: { duration: 0.5, ease: "easeOut" } 
-                }
-              }}
+              variants={fadeUp}
             >
               <FavoriteCard
                 item={item}
-                onAddToCart={() => handleAddToCart(item)}
+                onAdd={() => handleAddToCart(item)}
               />
             </motion.div>
           ))}
@@ -113,10 +109,10 @@ export function CustomerFavorites({ items }: CustomerFavoritesProps) {
 
 function FavoriteCard({
   item,
-  onAddToCart,
+  onAdd,
 }: {
   item: MenuItem;
-  onAddToCart: () => void;
+  onAdd: () => void;
 }) {
   const [hasError, setHasError] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -133,7 +129,7 @@ function FavoriteCard({
   }, [imageSrc]);
 
   const handleAdd = () => {
-    onAddToCart();
+    onAdd();
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 1500);
   };
@@ -187,8 +183,8 @@ function FavoriteCard({
           <div className="flex items-center gap-2">
             <Link
               href={`/menu/${item.slug}`}
-              className="p-2.5 rounded-lg hover:bg-cream-warm transition-colors text-olive focus-visible:ring-2 focus-visible:ring-brand outline-none"
-              aria-label={`View details for ${item.name}`}
+              className="p-2 rounded-lg hover:bg-cream transition-colors text-olive outline-none focus-visible:ring-2 focus-visible:ring-brand-gold hover:-translate-y-[1px] active:scale-[0.98]"
+              aria-label={`View ${item.name} details`}
             >
               <Eye className="w-4 h-4" />
             </Link>
@@ -196,7 +192,7 @@ function FavoriteCard({
               onClick={handleAdd}
               disabled={!item.available || isAdded}
               className={cn(
-                "btn-primary btn-sm min-w-[80px]",
+                "btn-primary btn-sm transition-all duration-200 min-w-[80px]",
                 isAdded ? "bg-brand-green border-brand-green" : "disabled:opacity-40"
               )}
               aria-label={`Add ${item.name} to cart`}

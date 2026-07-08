@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, X, Phone, ExternalLink } from "lucide-react";
 import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
+import { staggerContainer, fadeUp } from "@/lib/motion";
 
 export function MobileOrderFAB() {
   const pathname = usePathname();
@@ -83,8 +84,14 @@ export function MobileOrderFAB() {
                 </button>
               </div>
               
-              <div className="p-6 flex flex-col gap-3">
-                <a
+              <motion.div 
+                className="p-6 flex flex-col gap-3"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+              >
+                <motion.a
+                  variants={fadeUp}
                   href="/order"
                   onClick={() => setIsOpen(false)}
                   className="w-full py-4 px-4 bg-brand-dark text-white rounded-xl font-semibold flex items-center justify-between hover:bg-olive-dark transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
@@ -94,9 +101,10 @@ export function MobileOrderFAB() {
                     <span>Direct Online Order</span>
                   </div>
                   <span className="text-xs text-white/70">Pickup</span>
-                </a>
+                </motion.a>
 
-                <a
+                <motion.a
+                  variants={fadeUp}
                   href={restaurant.doordashUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -107,9 +115,10 @@ export function MobileOrderFAB() {
                     <span className="text-brand-dark font-bold">DoorDash</span>
                   </div>
                   <ExternalLink className="w-4 h-4 text-olive/50" />
-                </a>
+                </motion.a>
 
-                <a
+                <motion.a
+                  variants={fadeUp}
                   href={restaurant.uberEatsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -120,17 +129,18 @@ export function MobileOrderFAB() {
                     <span className="text-brand-dark font-bold">Uber Eats</span>
                   </div>
                   <ExternalLink className="w-4 h-4 text-olive/50" />
-                </a>
+                </motion.a>
 
-                <a
+                <motion.a
+                  variants={fadeUp}
                   href={restaurant.phoneUrl}
                   onClick={() => setIsOpen(false)}
                   className="w-full py-4 px-4 border border-border text-olive-dark bg-cream rounded-xl font-semibold flex items-center gap-3 hover:bg-cream-warm transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none mt-2"
                 >
                   <Phone className="w-5 h-5 text-brand-dark" />
                   <span>Call to Order: {restaurant.phone}</span>
-                </a>
-              </div>
+                </motion.a>
+              </motion.div>
             </motion.div>
           </>
         )}

@@ -8,6 +8,8 @@ import type { MenuItem, MenuCategory } from "@/types";
 import { useCartStore } from "@/store/cart.store";
 import { formatPrice, cn } from "@/lib/utils";
 import { getMenuItemMapping } from "@/data/menu-image-map";
+import { motion } from "framer-motion";
+import { staggerContainer, fadeUp } from "@/lib/motion";
 
 interface MenuPageClientProps {
   items: MenuItem[];
@@ -276,16 +278,22 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
             {filteredItems.map((item, index) => (
-              <MenuItemCard
-                key={item.id}
-                item={item}
-                index={index}
-                onAddToCart={() => handleAddToCart(item)}
-              />
+              <motion.div key={item.id} variants={fadeUp}>
+                <MenuItemCard
+                  item={item}
+                  index={index}
+                  onAddToCart={() => handleAddToCart(item)}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
@@ -387,7 +395,7 @@ function MenuItemCard({
           <div className="flex items-center gap-2">
             <Link
               href={`/menu/${item.slug}`}
-              className="p-2 rounded-lg hover:bg-cream transition-colors text-olive"
+              className="p-2 rounded-lg hover:bg-cream transition-colors text-olive outline-none focus-visible:ring-2 focus-visible:ring-brand-gold hover:-translate-y-[1px] active:scale-[0.98]"
               aria-label={`View ${item.name} details`}
             >
               <Eye className="w-4 h-4" />

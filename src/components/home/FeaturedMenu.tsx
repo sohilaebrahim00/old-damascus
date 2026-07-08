@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 import { ShoppingBag, Eye, Leaf, Flame, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import type { MenuItem } from "@/types";
@@ -9,6 +10,7 @@ import { useCartStore } from "@/store/cart.store";
 import { formatPrice } from "@/lib/utils";
 import { getMenuItemMapping } from "@/data/menu-image-map";
 import { useState, useEffect, useMemo } from "react";
+import { staggerContainer, fadeUp } from "@/lib/motion";
 
 interface FeaturedMenuProps {
   items: MenuItem[];
@@ -74,27 +76,13 @@ export function FeaturedMenu({ items }: FeaturedMenuProps) {
         {normalizedItems.length > 0 ? (
           <motion.div 
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
-            variants={{
-              visible: { transition: { staggerChildren: 0.08 } },
-              hidden: {}
-            }}
           >
             {normalizedItems.map((item) => (
-              <motion.div
-                key={item.id}
-                variants={{
-                  hidden: { opacity: 0, y: 14, scale: 0.985 },
-                  visible: { 
-                    opacity: 1, 
-                    y: 0, 
-                    scale: 1, 
-                    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } 
-                  }
-                }}
-              >
+              <motion.div key={item.id} variants={fadeUp}>
                 <MenuCard
                   item={item}
                   onAddToCart={() => handleAddToCart(item)}
@@ -129,6 +117,13 @@ function MenuCard({
   onAddToCart: () => void;
 }) {
   const [hasError, setHasError] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
+
+  const handleAdd = () => {
+    onAddToCart();
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1500);
+  };
 
   const imageSrc =
     item.primaryImage ||
@@ -224,19 +219,31 @@ function MenuCard({
           <div className="flex items-center gap-2">
             <Link
               href={`/menu/${item.slug}`}
-              className="p-2 rounded-lg hover:bg-cream transition-colors text-olive"
+              className="p-2 rounded-lg hover:bg-cream transition-colors text-olive outline-none focus-visible:ring-2 focus-visible:ring-brand-gold hover:-translate-y-[1px] active:scale-[0.98]"
               aria-label={`View details for ${item.name}`}
             >
               <Eye className="w-4 h-4" />
             </Link>
             <button
-              onClick={onAddToCart}
-              disabled={!item.available}
-              className="btn-primary btn-sm"
+              onClick={handleAdd}
+              disabled={!item.available || isAdded}
+              className={cn(
+                "btn-primary btn-sm transition-all duration-200 min-w-[80px]",
+                isAdded ? "bg-brand-green border-brand-green" : "disabled:opacity-40"
+              )}
               aria-label={`Add ${item.name} to cart`}
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              Add
+              {isAdded ? (
+                <>
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Added
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  Add
+                </>
+              )}
             </button>
           </div>
         </div>
