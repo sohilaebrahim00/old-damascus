@@ -28,7 +28,7 @@ export function AboutPreview() {
           {/* Floating card */}
           <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur rounded-2xl p-4 shadow-card">
             <p className="text-xs text-olive text-center mt-1">
-              Authentic Syrian Cuisine Since the Beginning
+              Authentic Mediterranean Cuisine Since the Beginning
             </p>
           </div>
         </div>

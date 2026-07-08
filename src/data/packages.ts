@@ -24,11 +24,11 @@ export const PACKAGES: MealPackage[] = [
   {
     id: "one-meal-daily",
     name: "One Meal Daily Package",
-    price: 699,
-    priceLabel: "$699 / month",
-    description: "Enjoy one freshly prepared meal every day for the full month.",
+    price: 129,
+    priceLabel: "$129 / week",
+    description: "One freshly prepared meal every day for the full week.",
     mealsPerDay: 1,
-    duration: "Full month",
+    duration: "Full week",
     available: true,
     orderable: false,
     ctaText: "Subscribe Now"
@@ -36,11 +36,11 @@ export const PACKAGES: MealPackage[] = [
   {
     id: "two-meals-daily",
     name: "Two Meals Daily Package",
-    price: 999,
-    priceLabel: "$999 / month",
-    description: "Enjoy two freshly prepared meals every day for the full month.",
+    price: 229,
+    priceLabel: "$229 / week",
+    description: "Two freshly prepared meals every day for the full week.",
     mealsPerDay: 2,
-    duration: "Full month",
+    duration: "Full week",
     available: true,
     orderable: false,
     ctaText: "Subscribe Now"

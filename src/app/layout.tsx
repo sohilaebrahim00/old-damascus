@@ -56,7 +56,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: `${restaurant.name} — Authentic Syrian Cuisine in Richardson, TX`,
+        alt: `${restaurant.name} — Authentic Mediterranean Cuisine in Richardson, TX`,
       },
     ],
   },

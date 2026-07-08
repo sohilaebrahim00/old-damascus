@@ -137,7 +137,7 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
             Our Menu
           </h1>
           <p className="text-white/80 text-lg max-w-xl mx-auto">
-            Fresh Syrian and Mediterranean cuisine — prepared daily with
+            Fresh Mediterranean cuisine — prepared daily with
             authentic ingredients.
           </p>
           {source === "clover" && (

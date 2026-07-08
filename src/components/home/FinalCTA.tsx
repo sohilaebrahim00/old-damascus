@@ -15,7 +15,7 @@ export function FinalCTA() {
           Craving Authentic Damascus Flavor?
         </h2>
         <p className="section-subtitle max-w-xl mx-auto mb-10">
-          Order fresh Syrian and Mediterranean cuisine directly from us, or
+          Order fresh Mediterranean cuisine directly from us, or
           through DoorDash and Uber Eats.
         </p>
 

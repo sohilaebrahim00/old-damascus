@@ -61,7 +61,7 @@ export function HeroSection() {
           variants={fadeIn}
           className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6 text-white drop-shadow-lg max-w-5xl mx-auto"
         >
-          Authentic Syrian Flavor,{" "}
+          Authentic Mediterranean Flavor,{" "}
           <span className="text-brand-gold">Made Fresh</span> in Richardson
         </motion.h1>
 

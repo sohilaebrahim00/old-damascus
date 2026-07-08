@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Old Damascus Mediterranean Restaurant",
     short_name: "Old Damascus",
-    description: "Authentic Syrian and Mediterranean cuisine in Richardson, TX.",
+    description: "Authentic Mediterranean cuisine in Richardson, TX.",
     start_url: "/",
     display: "standalone",
     background_color: "#F7F2E8",

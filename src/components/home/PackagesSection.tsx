@@ -34,7 +34,7 @@ export function PackagesSection() {
             id="packages-heading"
             className="font-heading text-4xl sm:text-5xl font-semibold text-olive-dark mt-1"
           >
-            Monthly Meal Packages
+            Weekly Meal Packages
           </h2>
           <p className="text-lg text-olive leading-relaxed mt-4 max-w-2xl mx-auto">
             Enjoy our curated meal packages designed to bring the true taste of Damascus to your table every day.
@@ -55,7 +55,7 @@ export function PackagesSection() {
 
         <div className="text-center mt-12 max-w-lg mx-auto">
           <p className="text-sm text-olive/80 italic">
-            Contact us to activate your monthly meal plan.
+            Contact us to activate your weekly meal plan.
           </p>
         </div>
       </div>
@@ -89,7 +89,7 @@ function PackageCard({ pkg, index }: { pkg: MealPackage; index: number }) {
         <div className="mb-8 pb-8 border-b border-white/20">
           <div className="flex items-end gap-2 text-brand-gold">
             <span className="text-4xl sm:text-5xl font-bold leading-none">${pkg.price}</span>
-            <span className="text-white/70 text-lg mb-1">/ month</span>
+            <span className="text-white/70 text-lg mb-1">/ week</span>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ function PackageCard({ pkg, index }: { pkg: MealPackage; index: number }) {
           </li>
           <li className="flex items-center gap-3 text-white/90">
             <CheckCircle2 className="w-5 h-5 text-brand-gold flex-shrink-0" />
-            <span className="font-medium">Authentic Syrian cuisine</span>
+            <span className="font-medium">Authentic Mediterranean cuisine</span>
           </li>
         </ul>
       </div>

@@ -39,7 +39,7 @@ export function Footer() {
             />
           </Link>
           <p className="text-sm text-white/75 leading-relaxed mb-5">
-            Authentic Syrian and Mediterranean cuisine prepared with fresh
+            Authentic Mediterranean cuisine prepared with fresh
             ingredients and the warmth of Damascus hospitality.
           </p>
 

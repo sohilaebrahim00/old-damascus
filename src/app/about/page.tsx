@@ -6,7 +6,7 @@ import { Leaf, ChefHat, Handshake } from "lucide-react";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Learn about the story, values, and traditions of Old Damascus Mediterranean Restaurant in Richardson, TX. Experience authentic Syrian hospitality.",
+    "Learn about the story, values, and traditions of Old Damascus Mediterranean Restaurant in Richardson, TX. Experience authentic Mediterranean hospitality.",
   alternates: { canonical: "/about" },
 };
 
@@ -33,7 +33,7 @@ export default function AboutPage() {
               Our Story
             </h2>
             <p className="text-olive leading-relaxed">
-              At Old Damascus, we celebrate the flavors, traditions, and hospitality of Syrian cuisine. Our menu brings together charcoal-grilled meats, fresh salads, handcrafted mezze, rice specialties, family platters, and traditional sweets prepared with care.
+              At Old Damascus, we celebrate the flavors, traditions, and hospitality of Mediterranean cuisine. Our menu brings together charcoal-grilled meats, fresh salads, handcrafted mezze, rice specialties, family platters, and traditional sweets prepared with care.
             </p>
             <p className="text-olive leading-relaxed">
               Our food is inspired by the culinary traditions of Syria&apos;s capital. We prepare our dishes with fresh ingredients, authentic spices, and the hospitality that brings families and friends together.
@@ -69,7 +69,7 @@ export default function AboutPage() {
               <ChefHat className="w-8 h-8 text-brand-olive" />
             </div>
             <h3 className="font-heading text-xl font-semibold text-olive-dark">
-              Authentic Syrian Flavors
+              Authentic Mediterranean Flavors
             </h3>
             <p className="text-sm text-olive leading-relaxed">
               We use traditional spices and cooking techniques direct from Damascus to create an authentic dining experience.
@@ -94,7 +94,7 @@ export default function AboutPage() {
             Experience Our Food Today
           </h2>
           <p className="text-white/80 max-w-xl mx-auto text-sm sm:text-base">
-            Dine in, order pickup, or delivery to enjoy the rich taste of Syrian cuisine right in Richardson, Texas.
+            Dine in, order pickup, or delivery to enjoy the rich taste of Mediterranean cuisine right in Richardson, Texas.
           </p>
           <div className="flex justify-center gap-4">
             <Link href="/menu" className="btn-gold">
