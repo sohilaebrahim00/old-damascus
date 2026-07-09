@@ -228,6 +228,13 @@ export default async function AdminMessagesPage() {
                           {msg.event_date && <div><span className="text-olive mr-2">Event Date:</span>{msg.event_date}</div>}
                           {msg.message && <div className="text-olive whitespace-pre-wrap mt-2">{msg.message}</div>}
                         </div>
+                        {msg.type === 'package_inquiry' && (
+                          <div className="mt-3 text-right">
+                             <a href={`/admin/subscriptions?action=new&name=${encodeURIComponent(msg.name)}&phone=${encodeURIComponent(msg.phone)}&email=${encodeURIComponent(msg.email || '')}&package=${encodeURIComponent(msg.package_id || '')}`} className="btn-outline bg-white px-3 py-1.5 text-xs h-auto border-brand-olive text-brand-dark hover:bg-brand-olive/10">
+                                Convert to Subscription
+                             </a>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
