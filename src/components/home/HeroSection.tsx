@@ -22,11 +22,12 @@ export function HeroSection() {
         animate="visible"
       >
         <Image
-          src="/restaurant/hero-bg.jpg"
-          alt="Old Damascus restaurant ambiance and food"
+          src="/images/hero/hero-4k.webp"
+          alt="Old Damascus premium restaurant ambiance and food spread"
           fill
           className="object-cover"
-          priority
+          priority={true}
+          fetchPriority="high"
           sizes="100vw"
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = "none";
