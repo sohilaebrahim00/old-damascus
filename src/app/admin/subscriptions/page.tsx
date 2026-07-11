@@ -1,6 +1,6 @@
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { AlertCircle, CalendarDays, CheckCircle, Package, Clock, QrCode, Search, Plus } from "lucide-react";
+import { AlertCircle, CalendarDays, CheckCircle, Package, Clock, QrCode, Search } from "lucide-react";
 import Link from "next/link";
 import { Subscription } from "@/lib/supabase/types";
 import { SubscriptionActions } from "@/components/admin/SubscriptionActions";
@@ -69,7 +69,9 @@ export default async function AdminSubscriptionsPage({
   let errorMsg = null;
 
   try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let data: any = null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let error: any = null;
       
       if (statusFilter !== "all" && query) {
@@ -103,8 +105,9 @@ export default async function AdminSubscriptionsPage({
   try {
     const { data } = await supabase.from("subscriptions").select("status, package_type");
     allSubs = (data as Subscription[]) || [];
-  } catch (e) {
+  } catch (e: unknown) {
     // Ignore error here, we already caught it above
+    void e;
   }
 
   const totalActive = allSubs.filter((s) => s.status === 'active').length;
@@ -259,6 +262,19 @@ export default async function AdminSubscriptionsPage({
                               PAY: {sub.payment_status}
                             </span>
                           </div>
+                          {(() => {
+                            const daysLeft = Math.ceil((new Date(sub.end_date).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+                            if (sub.status === 'active' && daysLeft <= 3 && daysLeft >= 0) {
+                              return (
+                                <div>
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-100 text-orange-800 border border-orange-200">
+                                    Expiring Soon
+                                  </span>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
                         </td>
                         <td className="px-6 py-5 align-top text-right">
                            <SubscriptionActions sub={sub} />

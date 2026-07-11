@@ -59,7 +59,9 @@ export default async function AdminMealCheckinPage({
 
   try {
     if (token || query) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let data: any = null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let error: any = null;
       
       if (token) {
@@ -112,7 +114,7 @@ export default async function AdminMealCheckinPage({
               <QrCode className="w-8 h-8 text-brand-dark" />
               Meal Check-in
             </h1>
-            <p className="text-olive mt-1">Scan a customer's QR code or search to log a meal.</p>
+            <p className="text-olive mt-1">Scan a customer&apos;s QR code or search to log a meal.</p>
           </div>
           <Link href="/admin/subscriptions" className="btn-outline bg-white flex items-center gap-2">
             Back to Dashboard
@@ -184,7 +186,7 @@ export default async function AdminMealCheckinPage({
                             <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                             <div>
                                 <p className="font-bold text-yellow-800 text-sm">Payment Not Confirmed</p>
-                                <p className="text-yellow-700 text-xs mt-1">This subscription's payment status is '{subscription.payment_status}'. You may still check them in, but please verify payment.</p>
+                                <p className="text-yellow-700 text-xs mt-1">This subscription&apos;s payment status is &apos;{subscription.payment_status}&apos;. You may still check them in, but please verify payment.</p>
                             </div>
                         </div>
                     )}
@@ -193,7 +195,7 @@ export default async function AdminMealCheckinPage({
                 <div className="p-8">
                     <h3 className="font-heading text-xl font-bold text-olive-dark mb-6 flex items-center gap-2">
                         <UtensilsCrossed className="w-6 h-6 text-brand-gold" />
-                        Today's Meals
+                        Today&apos;s Meals
                     </h3>
 
                     {subscription.status !== 'active' ? (
@@ -202,10 +204,16 @@ export default async function AdminMealCheckinPage({
                             <p className="font-bold text-red-800 text-lg">Subscription {subscription.status}</p>
                             <p className="text-red-600 text-sm mt-1">Cannot check in meals for non-active subscriptions.</p>
                         </div>
+                    ) : checkinsToday.length >= subscription.meals_per_day ? (
+                        <div className="p-8 bg-success/10 border border-success/30 rounded-2xl text-center shadow-sm">
+                            <CheckCircle className="w-12 h-12 text-success mx-auto mb-3" />
+                            <h3 className="text-2xl font-bold text-success-dark">All meals served for today</h3>
+                            <p className="text-success-dark/80 mt-2">The daily limit of {subscription.meals_per_day} meal(s) has been reached.</p>
+                        </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {/* Meal 1 */}
-                            <div className={`p-6 rounded-2xl border-2 ${checkinsToday.some(c => c.meal_number === 1) ? 'bg-success/5 border-success/30' : 'bg-white border-border'}`}>
+                            <div className={`p-6 rounded-2xl border-2 ${checkinsToday.some(c => c.meal_number === 1) ? 'bg-success/5 border-success/30' : 'bg-white border-border shadow-sm hover:shadow-md transition-shadow'}`}>
                                 <div className="flex justify-between items-center mb-4">
                                     <h4 className="font-bold text-olive-dark text-lg">Meal 1</h4>
                                     {checkinsToday.some(c => c.meal_number === 1) && <CheckCircle className="w-6 h-6 text-success" />}
@@ -220,7 +228,7 @@ export default async function AdminMealCheckinPage({
                                         <input type="hidden" name="meal_number" value="1" />
                                         <input type="hidden" name="token" value={token || ""} />
                                         <input type="hidden" name="query" value={query || ""} />
-                                        <button type="submit" className="btn-primary w-full py-4 text-lg justify-center shadow-md hover:-translate-y-0.5">
+                                        <button type="submit" className="btn-primary w-full py-4 text-lg justify-center shadow-md hover:-translate-y-0.5 transition-all">
                                             Mark as Served
                                         </button>
                                     </form>
@@ -229,7 +237,7 @@ export default async function AdminMealCheckinPage({
 
                             {/* Meal 2 (only if applicable) */}
                             {subscription.package_type === 'two_meals_daily' && (
-                                <div className={`p-6 rounded-2xl border-2 ${checkinsToday.some(c => c.meal_number === 2) ? 'bg-success/5 border-success/30' : 'bg-white border-border'}`}>
+                                <div className={`p-6 rounded-2xl border-2 ${checkinsToday.some(c => c.meal_number === 2) ? 'bg-success/5 border-success/30' : 'bg-white border-border shadow-sm hover:shadow-md transition-shadow'}`}>
                                 <div className="flex justify-between items-center mb-4">
                                     <h4 className="font-bold text-olive-dark text-lg">Meal 2</h4>
                                     {checkinsToday.some(c => c.meal_number === 2) && <CheckCircle className="w-6 h-6 text-success" />}
@@ -244,7 +252,7 @@ export default async function AdminMealCheckinPage({
                                         <input type="hidden" name="meal_number" value="2" />
                                         <input type="hidden" name="token" value={token || ""} />
                                         <input type="hidden" name="query" value={query || ""} />
-                                        <button type="submit" className="btn-primary w-full py-4 text-lg justify-center shadow-md hover:-translate-y-0.5">
+                                        <button type="submit" className="btn-primary w-full py-4 text-lg justify-center shadow-md hover:-translate-y-0.5 transition-all">
                                             Mark as Served
                                         </button>
                                     </form>

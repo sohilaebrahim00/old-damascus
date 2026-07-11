@@ -88,6 +88,13 @@ export async function POST(request: Request) {
         .eq("id", subscription_id);
       
       if (error) throw error;
+    } else if (action === "reactivate") {
+      const { error } = await supabase
+        .from("subscriptions")
+        .update({ status: "active" })
+        .eq("id", subscription_id);
+      
+      if (error) throw error;
     } else if (action === "extend") {
         // Fetch current end_date
         const { data: sub, error: fetchErr } = await supabase
@@ -106,6 +113,27 @@ export async function POST(request: Request) {
         const { error } = await supabase
             .from("subscriptions")
             .update({ end_date: newEndDate, status: 'active' }) // Ensure active if they extend
+            .eq("id", subscription_id);
+      
+        if (error) throw error;
+    } else if (action === "extend_month") {
+        // Fetch current end_date
+        const { data: sub, error: fetchErr } = await supabase
+            .from("subscriptions")
+            .select("end_date")
+            .eq("id", subscription_id)
+            .single();
+            
+        if (fetchErr || !sub) throw fetchErr || new Error("Not found");
+        
+        // Add 30 days
+        const endDate = new Date(sub.end_date);
+        endDate.setDate(endDate.getDate() + 30);
+        const newEndDate = endDate.toISOString().split('T')[0];
+
+        const { error } = await supabase
+            .from("subscriptions")
+            .update({ end_date: newEndDate, status: 'active' })
             .eq("id", subscription_id);
       
         if (error) throw error;

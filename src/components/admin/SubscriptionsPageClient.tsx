@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AddSubscriptionModal } from "./AddSubscriptionModal";
 import { useSearchParams } from "next/navigation";
 

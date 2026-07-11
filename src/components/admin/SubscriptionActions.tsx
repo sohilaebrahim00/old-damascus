@@ -1,10 +1,13 @@
 "use client";
 
-import { Copy, QrCode } from "lucide-react";
+import { Copy, QrCode, Eye } from "lucide-react";
 import Link from "next/link";
 import { Subscription } from "@/lib/supabase/types";
+import { useState } from "react";
+import { SubscriptionDetailsModal } from "./SubscriptionDetailsModal";
 
 export function SubscriptionActions({ sub }: { sub: Subscription }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const handleCopy = () => {
     navigator.clipboard.writeText(sub.subscription_code);
     alert('Copied: ' + sub.subscription_code);
@@ -17,7 +20,16 @@ export function SubscriptionActions({ sub }: { sub: Subscription }) {
   };
 
   return (
-    <div className="flex items-center justify-end gap-2 flex-wrap max-w-[200px]">
+    <>
+    <div className="flex items-center justify-end gap-2 flex-wrap max-w-[250px]">
+      <button 
+        className="text-brand-gold hover:text-brand-dark transition-colors p-1" 
+        title="View Details"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <Eye className="w-4 h-4" />
+      </button>
+
       <button 
         className="text-brand-gold hover:text-brand-dark transition-colors p-1" 
         title="Copy ID"
@@ -62,5 +74,18 @@ export function SubscriptionActions({ sub }: { sub: Subscription }) {
           </button>
       </form>
     </div>
+
+    {isModalOpen && (
+      <SubscriptionDetailsModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        subscription={sub}
+        onUpdate={() => {
+          // Ideally refresh the data, but for now we just let the optimistic UI or page refresh handle it
+          window.location.reload();
+        }}
+      />
+    )}
+    </>
   );
 }
