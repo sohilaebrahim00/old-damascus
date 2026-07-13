@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { POSClient } from "@/components/admin/pos/POSClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Admin - POS",
 };

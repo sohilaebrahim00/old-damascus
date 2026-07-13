@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { KitchenDisplayClient } from "@/components/admin/kitchen/KitchenDisplayClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Kitchen Display System",
 };

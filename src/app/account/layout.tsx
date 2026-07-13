@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LogOut, User, ShoppingBag, LayoutDashboard } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "My Account - Old Damascus",
 };

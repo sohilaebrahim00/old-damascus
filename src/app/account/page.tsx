@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function AccountPage() {
   const supabase = await createClient();
   await supabase.auth.getUser(); // Verify session, ignore user since we don't display it here yet
