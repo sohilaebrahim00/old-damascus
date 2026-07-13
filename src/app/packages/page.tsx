@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { PackagesSection } from "@/components/home/PackagesSection";
-import { HelpCircle, Phone, ArrowRight } from "lucide-react";
+import { Phone, ArrowRight } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
-import Link from "next/link";
 import { PackagesFaqClient } from "./PackagesFaqClient";
 
 export const metadata: Metadata = {

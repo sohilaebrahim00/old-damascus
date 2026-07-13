@@ -30,7 +30,7 @@ export default async function AdminKitchenPage() {
   const today = new Date();
   today.setHours(0,0,0,0);
 
-  const { data: orders, error } = await supabase
+  const { data: orders } = await supabase
     .from("orders")
     .select(`
       *,

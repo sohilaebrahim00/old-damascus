@@ -14,7 +14,7 @@ import { restaurant } from "@/config/restaurant";
 import { currentYear, isSocialUrlValid } from "@/lib/utils";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { motion } from "framer-motion";
-import { staggerContainer, fadeUp, zoomIn } from "@/lib/motion";
+import { staggerContainer, fadeUp } from "@/lib/motion";
 import { trackEvent } from "@/lib/analytics";
 
 const NAV_LINKS = [

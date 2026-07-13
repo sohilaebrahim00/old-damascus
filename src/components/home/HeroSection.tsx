@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion, Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronRight, MapPin, UtensilsCrossed, Store, ShoppingBag, Truck, CheckCircle2 } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
 

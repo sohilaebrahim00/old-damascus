@@ -4,7 +4,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { CheckCircle, AlertCircle, Phone, Sparkles, UtensilsCrossed, Truck, Loader2 } from "lucide-react";
+import { CheckCircle, AlertCircle, Sparkles, UtensilsCrossed, Truck, Loader2 } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/motion";

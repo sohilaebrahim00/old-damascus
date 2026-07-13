@@ -4,6 +4,8 @@ import { AlertCircle, QrCode, Search, CheckCircle, Clock, XCircle, UtensilsCross
 import Link from "next/link";
 import { Subscription, MealCheckin } from "@/lib/supabase/types";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Admin - Meal Check-in",
 };

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { restaurant } from "@/config/restaurant";
 
 export const metadata: Metadata = {
   title: "Catering",

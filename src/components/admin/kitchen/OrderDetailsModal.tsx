@@ -6,12 +6,11 @@ export function OrderDetailsModal({
   order, 
   isOpen, 
   onClose,
-  onUpdateStatus
 }: { 
   order: any; 
   isOpen: boolean; 
   onClose: () => void;
-  onUpdateStatus: (status: string) => void;
+  onUpdateStatus?: (status: string) => void;
 }) {
   if (!order) return null;
 

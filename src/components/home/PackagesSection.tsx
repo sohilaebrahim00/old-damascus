@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Calendar, Utensils, X, AlertCircle } from "lucide-react";
 import { PACKAGES, type MealPackage } from "@/data/packages";
-import { motion, Variants, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

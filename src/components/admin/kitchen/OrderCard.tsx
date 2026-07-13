@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, react/no-unescaped-entities */
-import { Order, OrderItem } from "@/lib/supabase/types";
 import { Clock, Play, CheckCircle, Package, Truck, UtensilsCrossed, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 

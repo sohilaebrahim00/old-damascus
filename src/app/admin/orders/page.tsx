@@ -1,8 +1,10 @@
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { AlertCircle, FileText, Search, ChefHat, CheckCircle, Clock } from "lucide-react";
+import { AlertCircle, FileText, Search, ChefHat, Clock } from "lucide-react";
 import Link from "next/link";
 import { Order } from "@/lib/supabase/types";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Admin - Orders",

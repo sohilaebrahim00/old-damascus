@@ -2,6 +2,8 @@ import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AlertCircle, Inbox, Mail, UtensilsCrossed, Calendar } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Admin - Messages",
 };

@@ -6,6 +6,8 @@ import { Subscription } from "@/lib/supabase/types";
 import { SubscriptionActions } from "@/components/admin/SubscriptionActions";
 import { SubscriptionsPageClient } from "@/components/admin/SubscriptionsPageClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Admin - Subscriptions",
 };
