@@ -1,0 +1,47 @@
+
+> old-damascus@0.1.0 lint
+> eslint
+
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\scratch\add_eslint_disable.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\scratch\copy_client_images.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\scratch\copy_generated_images.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\scratch\fix_image_map.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\scratch\inspect_clover_items.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+  4:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\scratch\regression.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\scratch\remove_ar.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\scratch\remove_ar_components.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\src\app\api\admin\kitchen\orders\[id]\route.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\src\components\admin\kitchen\KitchenDisplayClient.tsx
+  1:1  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  1:1  warning  Unused eslint-disable directive (no problems were reported from 'react/no-unescaped-entities')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\src\components\admin\kitchen\OrderDetailsModal.tsx
+  1:1  warning  Unused eslint-disable directive (no problems were reported from 'react/no-unescaped-entities')
+
+c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\src\components\admin\pos\POSClient.tsx
+  1:1  warning  Unused eslint-disable directive (no problems were reported from 'react/no-unescaped-entities')
+
+✖ 15 problems (0 errors, 15 warnings)
+  0 errors and 15 warnings potentially fixable with the `--fix` option.
+

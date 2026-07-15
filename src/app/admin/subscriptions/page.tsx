@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Subscription } from "@/lib/supabase/types";
 import { SubscriptionActions } from "@/components/admin/SubscriptionActions";
 import { SubscriptionsPageClient } from "@/components/admin/SubscriptionsPageClient";
+import { isAdminUser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +57,7 @@ export default async function AdminSubscriptionsPage({
     redirect("/sign-in");
   }
 
-  const isAdmin = user?.email === process.env.ADMIN_NOTIFICATION_EMAIL || user?.app_metadata?.role === 'admin' || user;
+  const isAdmin = isAdminUser(user);
   
   if (!isAdmin) {
     return (

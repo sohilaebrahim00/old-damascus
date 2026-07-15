@@ -2,24 +2,75 @@
 
 @import "tailwindcss";
 
-@config "../../tailwind.config.ts";
+/* ============================================================
+   Tailwind v4 Theme – Custom Design Tokens
+   These replace tailwind.config.js which is ignored by v4.
+   ============================================================ */
+@theme {
+  /* Brand colors */
+  --color-brand: #2F6515;
+  --color-brand-olive: #183B0B;
+  --color-brand-green: #2F6515;
+  --color-brand-cream: #F7F2E8;
+  --color-brand-sand: #E9DDC7;
+  --color-brand-gold: #C6A15B;
+  --color-brand-dark: #20251D;
+  --color-brand-white: #FFFFFF;
+  --color-brand-lime: #C6A15B;
+
+  /* Cream palette */
+  --color-cream: #F7F2E8;
+  --color-cream-warm: #E9DDC7;
+
+  /* Olive palette */
+  --color-olive: #68705F;
+  --color-olive-dark: #183B0B;
+  --color-olive-light: #E9DDC7;
+
+  /* Semantic */
+  --color-border: #E9DDC7;
+  --color-success: #2F6515;
+  --color-success-dark: #1E4B0E;
+  --color-error: #A62626;
+
+  /* Fonts */
+  --font-heading: var(--font-cormorant), Georgia, serif;
+  --font-body: var(--font-manrope), system-ui, sans-serif;
+
+  /* Box shadows */
+  --shadow-card: 0 2px 16px rgba(24,59,11,0.08);
+  --shadow-card-hover: 0 8px 32px rgba(24,59,11,0.16);
+  --shadow-gold: 0 4px 20px rgba(198,161,91,0.25);
+
+  /* Background images */
+  --background-image-hero-gradient: linear-gradient(90deg, rgba(24,59,11,0.94), rgba(47,101,21,0.72), rgba(47,101,21,0.18));
+  --background-image-card-gradient: linear-gradient(to top, rgba(24,59,11,0.85) 0%, transparent 60%);
+
+  /* Animations */
+  --animate-fade-in: fadeIn 0.5s ease-in-out;
+  --animate-slide-up: slideUp 0.4s ease-out;
+  --animate-slide-in-right: slideInRight 0.3s ease-out;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes slideUp {
+    0% { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideInRight {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
+  }
+}
 
 /* ============================================================
-   CSS Custom Properties
+   CSS Custom Properties (non-Tailwind)
    ============================================================ */
 :root {
-  --color-brand-dark: #315F05;
-  --color-brand: #548B08;
-  --color-brand-lime: #9DC52A;
-  --color-brand-olive: #234804;
-  --color-gold: #D4A900;
-  --color-cream: #FAF9F4;
-  --color-cream-warm: #F3EFE4;
   --color-text: #18200F;
-  --color-muted: #68705F;
-  --color-border: #DDDCCF;
-  --color-error: #A62626;
-  --color-success: #2E6C30;
+  --font-playfair: var(--font-cormorant);
   --header-height: 72px;
 }
 
@@ -33,7 +84,9 @@
   }
 
   body {
-    @apply bg-cream text-olive-dark antialiased;
+    background-color: var(--color-cream);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
     font-family: var(--font-manrope), system-ui, sans-serif;
   }
 
@@ -60,7 +113,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-cream;
+    background-color: var(--color-cream);
   }
 
   ::-webkit-scrollbar-thumb {

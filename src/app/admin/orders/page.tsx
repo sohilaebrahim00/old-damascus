@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AlertCircle, FileText, Search, ChefHat, Clock } from "lucide-react";
 import Link from "next/link";
 import { Order } from "@/lib/supabase/types";
+import { isAdminUser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export default async function AdminOrdersPage({
     redirect("/sign-in");
   }
 
-  const isAdmin = user?.email === process.env.ADMIN_NOTIFICATION_EMAIL || user?.app_metadata?.role === 'admin' || user;
+  const isAdmin = isAdminUser(user);
   
   if (!isAdmin) {
     return (

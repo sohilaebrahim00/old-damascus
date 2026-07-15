@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { POSClient } from "@/components/admin/pos/POSClient";
+import { isAdminUser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,7 @@ export default async function AdminPOSPage() {
     redirect("/sign-in");
   }
 
-  const isAdmin = user?.email === process.env.ADMIN_NOTIFICATION_EMAIL || user?.app_metadata?.role === 'admin' || user;
+  const isAdmin = isAdminUser(user);
   
   if (!isAdmin) {
     return (

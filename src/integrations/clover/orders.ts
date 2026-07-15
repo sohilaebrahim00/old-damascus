@@ -71,7 +71,7 @@ export async function getCloverOrderDetails(
   orderId: string
 ): Promise<CloverOrder> {
   return cloverFetch<CloverOrder>(
-    `/orders/${orderId}?expand=lineItems,lineItems.modifications,lineItems.taxRates,customers`
+    `/orders/${orderId}?expand=lineItems,lineItems.modifications,lineItems.taxRates`
   );
 }
 

@@ -1,24 +1,25 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { isAdminUser } from "@/lib/admin-auth";
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const isAdmin = isAdminUser(user);
+    if (!isAdmin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const subscription_id = formData.get("subscription_id") as string;
     const meal_number = parseInt(formData.get("meal_number") as string, 10);
     const token = formData.get("token") as string;
     const query = formData.get("query") as string;
 
-    if (!subscription_id || !meal_number) {
+    if (!subscription_id || !meal_number || isNaN(meal_number)) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    const isAdmin = user?.email === process.env.ADMIN_NOTIFICATION_EMAIL || user?.app_metadata?.role === 'admin' || user;
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const today = new Date().toISOString().split('T')[0];

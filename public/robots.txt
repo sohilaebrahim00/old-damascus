@@ -1,0 +1,19 @@
+# Old Damascus Mediterranean Restaurant
+# https://olddamascustx.com
+
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /create-account
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /login
+
+# Sitemap
+Sitemap: https://olddamascustx.com/sitemap.xml

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { isAdminUser } from "@/lib/admin-auth";
 
 export async function POST(
   request: Request,
@@ -10,7 +11,7 @@ export async function POST(
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    const isAdmin = user?.email === process.env.ADMIN_NOTIFICATION_EMAIL || user?.app_metadata?.role === 'admin' || user;
+    const isAdmin = isAdminUser(user);
     if (!isAdmin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

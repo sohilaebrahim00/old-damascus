@@ -1,0 +1,41 @@
+
+> old-damascus@0.1.0 build
+> next build
+
+▲ Next.js 16.2.10 (Turbopack)
+- Environments: .env.local
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Error: Cannot apply unknown utility class `bg-cream`
+    [2m[at onInvalidCandidate (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\tailwindcss\dist\lib.js:21:1879)][0m
+    [2m[at Re (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\tailwindcss\dist\lib.js:16:39409)][0m
+    [2m[at c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\tailwindcss\dist\lib.js:21:711][0m
+    [2m[at jr (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\tailwindcss\dist\lib.js:3:1775)][0m
+    [2m[at I (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\tailwindcss\dist\lib.js:3:1377)][0m
+    [2m[at Ee (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\tailwindcss\dist\lib.js:21:172)][0m
+    [2m[at Cn (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\tailwindcss\dist\lib.js:38:294)][0m
+    [2m[at async Sn (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\tailwindcss\dist\lib.js:38:631)][0m
+    [2m[at async ln (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\@tailwindcss\node\dist\index.js:10:3415)][0m
+    [2m[at async E (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\@tailwindcss\postcss\dist\index.js:10:3984)][0m
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/app/globals.css
+Error evaluating Node.js code
+CssSyntaxError: tailwindcss: c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\src\app\globals.css:1:1: Cannot apply unknown utility class `bg-cream`
+    at Input.error (node_modules/postcss/lib/input.js:135:16) [c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\.next\build\chunks\node_modules_20v-8wl._.js:4689:22]
+    at error (node_modules/postcss/lib/node.js:149:32) [c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\.next\build\chunks\node_modules_20v-8wl._.js:957:38]
+    [at Object.Once (c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\node_modules\@tailwindcss\postcss\dist\index.js:10:6918)]
+    at async LazyResult.runAsync (node_modules/postcss/lib/lazy-result.js:293:11) [c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\.next\build\chunks\node_modules_20v-8wl._.js:6272:21]
+    at async transform (turbopack:///[turbopack-node]/transforms/postcss.ts:70:34) [c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\.next\build\chunks\[root-of-the-server]__0oj80bi._.js:146:36]
+    at async run (turbopack:///[turbopack-node]/child_process/evaluate.ts:89:23) [c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\.next\build\chunks\[root-of-the-server]__1f933tp._.js:443:31]
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css [Client Component Browser]
+    ./src/app/layout.tsx [Server Component]
+
+
+    at async transform (turbopack:///[turbopack-node]/transforms/postcss.ts:70:34) [c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\.next\build\chunks\[root-of-the-server]__0oj80bi._.js:146:36])
+    at async run (turbopack:///[turbopack-node]/child_process/evaluate.ts:89:23) [c:\Users\sohila\.gemini\antigravity\scratch\old-damascus\.next\build\chunks\[root-of-the-server]__1f933tp._.js:443:31])

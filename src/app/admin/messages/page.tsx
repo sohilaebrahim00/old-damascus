@@ -1,6 +1,7 @@
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AlertCircle, Inbox, Mail, UtensilsCrossed, Calendar } from "lucide-react";
+import { isAdminUser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +63,7 @@ export default async function AdminMessagesPage() {
     redirect("/sign-in");
   }
 
-  const isAdmin = user?.email === process.env.ADMIN_NOTIFICATION_EMAIL || user?.app_metadata?.role === 'admin' || user;
+  const isAdmin = isAdminUser(user);
   
   if (!isAdmin) {
     return (

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AlertCircle, QrCode, Search, CheckCircle, Clock, XCircle, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { Subscription, MealCheckin } from "@/lib/supabase/types";
+import { isAdminUser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ export default async function AdminMealCheckinPage({
     redirect("/sign-in");
   }
 
-  const isAdmin = user?.email === process.env.ADMIN_NOTIFICATION_EMAIL || user?.app_metadata?.role === 'admin' || user;
+  const isAdmin = isAdminUser(user);
   
   if (!isAdmin) {
     return (

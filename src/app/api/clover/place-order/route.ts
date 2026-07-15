@@ -136,7 +136,12 @@ export async function POST(req: Request) {
     const dbOrderItems = [];
 
     for (const cartItem of cartItems) {
-      const menuItem = allMenuItems.find((i) => i.id === cartItem.menuItemId);
+      const menuItem = allMenuItems.find(
+        (i) =>
+          i.id === cartItem.menuItemId ||
+          i.cloverItemId === cartItem.menuItemId ||
+          i.slug === cartItem.menuItemId
+      );
       if (!menuItem) {
         return NextResponse.json(
           { error: `Item not found in menu: ${cartItem.menuItemId}` },
