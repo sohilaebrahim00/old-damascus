@@ -18,11 +18,11 @@ interface CloverPaymentFormProps {
 
 interface CloverInstance {
   elements: () => CloverElements;
-  createToken: () => Promise<{ token?: string; error?: { message?: string } }>;
+  createToken: () => Promise<{ token?: string; error?: { message?: string }; errors?: Record<string, string> }>;
 }
 
 interface CloverElements {
-  create: (type: string, options?: unknown) => CloverElement;
+  create: (type: string, styles?: unknown) => CloverElement;
 }
 
 interface CloverElement {
@@ -39,7 +39,7 @@ interface CloverChangeEvent {
 
 declare global {
   interface Window {
-    Clover?: new (merchantId: string, options: { apiKey: string }) => CloverInstance;
+    Clover?: new (apiKey: string, options: { merchantId: string }) => CloverInstance;
   }
 }
 
@@ -49,7 +49,7 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     const [sdkError, setSdkError] = useState<string | null>(null);
     const [cardError, setCardError] = useState<string | null>(null);
     const cloverInstance = useRef<CloverInstance | null>(null);
-    const cardElement = useRef<CloverElement | null>(null);
+    const cardElementsRef = useRef<CloverElement[]>([]);
 
     const sdkUrl =
       environment === "sandbox"
@@ -59,7 +59,7 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     // Expose requestToken method to parent component via ref
     useImperativeHandle(ref, () => ({
       async requestToken() {
-        if (!cloverInstance.current || !cardElement.current) {
+        if (!cloverInstance.current || cardElementsRef.current.length === 0) {
           onError("Payment interface is not ready.");
           return null;
         }
@@ -67,16 +67,22 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
         setCardError(null);
         try {
           const result = await cloverInstance.current.createToken();
-          if (result.error) {
-            const errMsg = result.error.message || "Failed to validate card.";
+          if (result.error && result.error.message) {
+            const errMsg = result.error.message;
             setCardError(errMsg);
             onError(errMsg);
+            return null;
+          }
+          if (result.errors) {
+            const firstErr = Object.values(result.errors)[0] || "Failed to validate card fields.";
+            setCardError(firstErr);
+            onError(firstErr);
             return null;
           }
           if (result.token) {
             return result.token;
           }
-          onError("Could not generate secure token.");
+          onError("Could not generate secure token from Clover.");
           return null;
         } catch (err) {
           console.error("[Clover Tokenization Exception]:", err);
@@ -105,8 +111,9 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
           return;
         }
 
-        const clover = new window.Clover(merchantId, {
-          apiKey: publicKey,
+        // Official signature: new Clover(apiKey, { merchantId })
+        const clover = new window.Clover(publicKey, {
+          merchantId: merchantId,
         });
         cloverInstance.current = clover;
 
@@ -133,24 +140,34 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
         };
 
         const elements = clover.elements();
-        const card = elements.create("card", { styles });
-        cardElement.current = card;
+        const cardNumber = elements.create("CARD_NUMBER", styles);
+        const cardDate = elements.create("CARD_DATE", styles);
+        const cardCvv = elements.create("CARD_CVV", styles);
 
-        const targetEl = document.querySelector("#clover-card-element");
-        if (!targetEl) {
-          console.warn("[Clover SDK] Target container #clover-card-element not found in DOM yet.");
+        cardElementsRef.current = [cardNumber, cardDate, cardCvv];
+
+        const numEl = document.querySelector("#clover-card-number");
+        const dateEl = document.querySelector("#clover-card-date");
+        const cvvEl = document.querySelector("#clover-card-cvv");
+
+        if (!numEl || !dateEl || !cvvEl) {
+          console.warn("[Clover SDK] Target containers (#clover-card-number, #clover-card-date, #clover-card-cvv) not found in DOM yet.");
           return;
         }
 
-        card.mount("#clover-card-element");
+        cardNumber.mount("#clover-card-number");
+        cardDate.mount("#clover-card-date");
+        cardCvv.mount("#clover-card-cvv");
 
-        card.addEventListener("change", (event: CloverChangeEvent) => {
-          if (event.error) {
-            setCardError(event.error.message);
-            onError(event.error.message);
-          } else {
-            setCardError(null);
-          }
+        [cardNumber, cardDate, cardCvv].forEach((el) => {
+          el.addEventListener("change", (event: CloverChangeEvent) => {
+            if (event.error && event.error.message) {
+              setCardError(event.error.message);
+              onError(event.error.message);
+            } else {
+              setCardError(null);
+            }
+          });
         });
       } catch (err: unknown) {
         console.error("[Clover SDK Init Error]:", err);
@@ -166,14 +183,14 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
       }
 
       return () => {
-        if (cardElement.current) {
+        cardElementsRef.current.forEach((el) => {
           try {
-            cardElement.current.destroy();
-            console.log("[Clover SDK] Secure elements destroyed successfully.");
+            el.destroy();
           } catch (err) {
             console.error("[Clover SDK Cleanup Error]:", err);
           }
-        }
+        });
+        cardElementsRef.current = [];
       };
     }, [sdkLoaded, merchantId, publicKey, onError]);
 
@@ -208,12 +225,34 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">
-                Card Information
+            {/* Card Number */}
+            <div className="space-y-1.5">
+              <label htmlFor="clover-card-number" className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Card Number
               </label>
               <div className="w-full bg-slate-950/80 rounded-xl border border-slate-800 px-4 py-3.5 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500 transition-all duration-200">
-                <div id="clover-card-element" className="w-full min-h-[24px]" />
+                <div id="clover-card-number" className="w-full min-h-[24px]" />
+              </div>
+            </div>
+
+            {/* Expiry Date & CVV Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label htmlFor="clover-card-date" className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Expiration Date
+                </label>
+                <div className="w-full bg-slate-950/80 rounded-xl border border-slate-800 px-4 py-3.5 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500 transition-all duration-200">
+                  <div id="clover-card-date" className="w-full min-h-[24px]" />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="clover-card-cvv" className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  CVV
+                </label>
+                <div className="w-full bg-slate-950/80 rounded-xl border border-slate-800 px-4 py-3.5 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500 transition-all duration-200">
+                  <div id="clover-card-cvv" className="w-full min-h-[24px]" />
+                </div>
               </div>
             </div>
 
