@@ -9,7 +9,7 @@ import { trackEvent } from "@/lib/analytics";
 import { PackageCheckoutModal } from "./PackageCheckoutModal";
 
 export function PackagesSection() {
-  const availablePackages = PACKAGES.filter((p) => p.available);
+  const availablePackages = PACKAGES.filter((p) => p.available && !p.isEmployeeOnly);
   const [selectedPackage, setSelectedPackage] = useState<MealPackage | null>(null);
 
   const merchantId = process.env.NEXT_PUBLIC_CLOVER_MERCHANT_ID || "4HHSMAKE7E941";
