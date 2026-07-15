@@ -15,6 +15,8 @@ export type EventName =
   | "remove_from_cart"
   | "package_inquiry_open"
   | "package_inquiry_submit"
+  | "package_checkout_open"
+  | "package_checkout_submit"
   | "catering_submit"
   | "call_click"
   | "doordash_click"

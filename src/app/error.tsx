@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { AlertCircle, RefreshCcw } from "lucide-react";
+import Link from "next/link";
 
 export default function Error({
   error,
@@ -30,9 +31,9 @@ export default function Error({
             <RefreshCcw className="w-4 h-4" />
             Try Again
           </button>
-          <a href="/" className="btn-outline">
+          <Link href="/" className="btn-outline">
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

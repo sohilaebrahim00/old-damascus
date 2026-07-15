@@ -17,7 +17,7 @@ const FAQS = [
   },
   {
     q: "How do I subscribe to a weekly meal package?",
-    a: "Simply select your preferred package on this page and submit an inquiry with your desired start date. Our team will contact you directly to finalize your menu preferences and activate your plan.",
+    a: "Simply select your preferred package on this page to activate immediately online via secure Clover checkout. Once paid, you will instantly receive your unique Membership ID and QR code for daily meal redemptions. You may also submit a staff inquiry if you prefer in-person assistance.",
   },
   {
     q: "Do you offer catering?",

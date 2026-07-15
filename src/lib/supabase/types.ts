@@ -1,9 +1,22 @@
+export interface Profile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone?: string | null;
+  marketing_consent?: boolean;
+  role?: string; // 'customer', 'employee', 'admin'
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Subscription {
   id: string;
   subscription_code: string;
+  user_id?: string | null;
   customer_name: string;
   customer_phone: string;
   customer_email?: string | null;
+  package_id?: string | null;
   package_type: string;
   start_date: string;
   end_date: string;
@@ -12,6 +25,9 @@ export interface Subscription {
   qr_code_token: string;
   payment_status: string; // 'paid', 'pending', 'unpaid'
   payment_method?: string | null; // 'cash', 'clover_manual', 'phone', 'other'
+  clover_order_id?: string | null;
+  clover_payment_id?: string | null;
+  is_employee_package?: boolean;
   notes?: string | null;
   payment_reference?: string | null;
   created_at: string;
@@ -25,6 +41,7 @@ export interface MealCheckin {
   meal_number: number;
   served_at: string;
   served_by?: string | null;
+  clover_order_id?: string | null;
   notes?: string | null;
 }
 

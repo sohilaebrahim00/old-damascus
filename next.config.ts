@@ -26,6 +26,18 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(self)",
           },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self';",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.clover.com https://checkout.sandbox.clover.com https://*.clover.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net;",
+              "frame-src 'self' https://checkout.clover.com https://checkout.sandbox.clover.com https://*.clover.com;",
+              "connect-src 'self' https://checkout.clover.com https://checkout.sandbox.clover.com https://*.clover.com https://api.clover.com https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com;",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
+              "font-src 'self' data: https://fonts.gstatic.com;",
+              "img-src 'self' data: blob: https://* http://*;"
+            ].join(" ")
+          },
         ],
       },
     ];

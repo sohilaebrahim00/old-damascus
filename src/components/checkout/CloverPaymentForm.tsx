@@ -136,6 +136,12 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
         const card = elements.create("card", { styles });
         cardElement.current = card;
 
+        const targetEl = document.querySelector("#clover-card-element");
+        if (!targetEl) {
+          console.warn("[Clover SDK] Target container #clover-card-element not found in DOM yet.");
+          return;
+        }
+
         card.mount("#clover-card-element");
 
         card.addEventListener("change", (event: CloverChangeEvent) => {
@@ -148,8 +154,15 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
         });
       } catch (err: unknown) {
         console.error("[Clover SDK Init Error]:", err);
-        setSdkError("Failed to load Clover payment fields. Please refresh.");
-        onError("Failed to load Clover payment fields.");
+        const errStr = err instanceof Error ? err.message : String(err);
+        let userMsg = "Failed to load Clover payment fields.";
+        if (errStr.toLowerCase().includes("key") || errStr.toLowerCase().includes("domain") || errStr.toLowerCase().includes("origin")) {
+          userMsg = `Clover configuration error: ${errStr}. Please verify that this domain is whitelisted in Clover Merchant Dashboard (Setup -> Ecommerce -> Domain Whitelisting).`;
+        } else if (errStr) {
+          userMsg = `Failed to load Clover payment fields (${errStr}). Please refresh or verify domain setup.`;
+        }
+        setSdkError(userMsg);
+        onError(userMsg);
       }
 
       return () => {

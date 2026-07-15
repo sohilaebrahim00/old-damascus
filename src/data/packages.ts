@@ -15,6 +15,7 @@ export interface MealPackage {
   available: boolean;
   orderable: boolean;
   ctaText: string;
+  isEmployeeOnly?: boolean;
 }
 
 // ============================================================
@@ -30,7 +31,7 @@ export const PACKAGES: MealPackage[] = [
     mealsPerDay: 1,
     duration: "Full week",
     available: true,
-    orderable: false,
+    orderable: true,
     ctaText: "Subscribe Now"
   },
   {
@@ -42,7 +43,20 @@ export const PACKAGES: MealPackage[] = [
     mealsPerDay: 2,
     duration: "Full week",
     available: true,
-    orderable: false,
+    orderable: true,
     ctaText: "Subscribe Now"
+  },
+  {
+    id: "employee-meal-plan",
+    name: "Employee Daily Meal Package",
+    price: 69,
+    priceLabel: "$69 / week (Staff Tier)",
+    description: "Staff discounted weekly meal package with daily check-in access.",
+    mealsPerDay: 1,
+    duration: "Full week",
+    available: true,
+    orderable: true,
+    isEmployeeOnly: true,
+    ctaText: "Staff Subscribe"
   }
 ];

@@ -30,3 +30,14 @@ export function isAdminUser(user: UserLike | null | undefined): boolean {
 
   return false;
 }
+
+export function isEmployeeUser(user: UserLike | null | undefined, profileRole?: string | null): boolean {
+  if (!user) return false;
+  if (isAdminUser(user)) return true;
+  if (user.app_metadata?.role === "employee" || profileRole === "employee") return true;
+  return false;
+}
+
+export function isAdminOrEmployee(user: UserLike | null | undefined, profileRole?: string | null): boolean {
+  return isAdminUser(user) || isEmployeeUser(user, profileRole);
+}

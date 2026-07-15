@@ -34,7 +34,7 @@ export async function createCloverOrder(
 }
 
 /**
- * Adds a single line item to a Clover order
+ * Adds a single line item to a Clover order by item ID
  */
 export async function addCloverLineItem(
   orderId: string,
@@ -44,6 +44,23 @@ export async function addCloverLineItem(
     `/orders/${orderId}/line_items`,
     {
       item: { id: itemId },
+    }
+  );
+}
+
+/**
+ * Adds a custom ad-hoc line item with explicit name and price (e.g. meal packages or custom items)
+ */
+export async function addCloverCustomLineItem(
+  orderId: string,
+  name: string,
+  priceCents: number
+): Promise<{ id: string; name: string; price: number }> {
+  return cloverPost<{ id: string; name: string; price: number }>(
+    `/orders/${orderId}/line_items`,
+    {
+      name,
+      price: priceCents,
     }
   );
 }
