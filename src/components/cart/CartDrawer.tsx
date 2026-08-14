@@ -120,7 +120,7 @@ export function CartDrawer() {
                         sizes="64px"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
-                            "/menu/placeholder.jpg";
+                            "/photos/placeholder.webp";
                         }}
                       />
                     </div>

@@ -121,7 +121,42 @@ function slugify(t) {
     for (const n of v) console.log(`      - ${n}`);
   }
 
-  const grillEmpty = grilled.length === 0;
+  console.log("\n=== ALL VIEW ORDER (first 20) ===");
+  const withCat = items.map((it) => {
+    const ref = it.categories?.elements?.[0];
+    const cat = ref ? categories.find((x) => x.id === ref.id) : null;
+    return { name: it.name, categoryId: cat?.id, categoryName: cat?.name };
+  });
+  const sorted = mc.sortItemsForAllView(withCat, categories);
+  sorted.slice(0, 20).forEach((r, i) =>
+    console.log(
+      `  ${String(i + 1).padStart(2)}. [${String(mc.itemRank(r, categories)).padStart(2)}] ${String(r.categoryName).padEnd(22)} ${r.name}`
+    )
+  );
+
+  const firstDrink = sorted.findIndex((r) =>
+    ["Soft Drinks", "Hot Drinks", "Smoothie / MilkShakes"].includes(
+      r.categoryName
+    )
+  );
+  const lastFood = sorted.reduce(
+    (acc, r, i) =>
+      ["Soft Drinks", "Hot Drinks", "Smoothie / MilkShakes"].includes(
+        r.categoryName
+      )
+        ? acc
+        : i,
+    -1
+  );
+  console.log(`\n  first drink at position : ${firstDrink + 1}`);
+  console.log(`  last food  at position : ${lastFood + 1}`);
+  console.log(`  first item             : ${sorted[0].name} [${sorted[0].categoryName}]`);
+  const drinksAfterFood = firstDrink > lastFood;
+  const startsWithMains = mc.itemRank(sorted[0], categories) === 1;
+  console.log(`  ALL starts with Main Dishes : ${startsWithMains ? "YES" : "NO"}`);
+  console.log(`  no drinks before food       : ${drinksAfterFood ? "YES" : "NO"}`);
+
+  const grillEmpty = grilled.length === 0 || !drinksAfterFood || !startsWithMains;
   console.log(
     `\nRESULT: ${empties} empty categories, ${unresolved} unresolved site tokens, grilled collection ${grilled.length} items`
   );

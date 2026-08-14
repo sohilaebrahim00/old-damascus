@@ -22,6 +22,7 @@ import {
   isGrilledItem,
   makeCategoryPredicate,
   sortCategories,
+  sortItemsForAllView,
 } from "@/lib/menu-categories";
 import { motion } from "framer-motion";
 import { staggerContainer, fadeUp } from "@/lib/motion";
@@ -160,7 +161,9 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
     if (filters.availableOnly) result = result.filter((i) => i.available);
     if (filters.featured) result = result.filter((i) => i.featured);
 
-    return result;
+    // Present the list as a meal is served rather than as Clover returns it,
+    // which leads with drinks. Display order only.
+    return sortItemsForAllView(result, categories);
   }, [normalizedItems, search, activeCategory, filters, categories]);
 
   const clearAll = useCallback(() => {

@@ -17,6 +17,11 @@ export interface CategoryLike {
   sortOrder?: number;
 }
 
+/*
+ * Serving hierarchy. Matched top-down against a letters-only reduction of
+ * the category name, so the narrower drink tiers must precede the generic
+ * one. Ranks drive both the tab order and the ALL-view item order.
+ */
 export const CANONICAL_CATEGORIES: Array<{
   token: string;
   rank: number;
@@ -35,21 +40,40 @@ export const CANONICAL_CATEGORIES: Array<{
   { token: "salads", rank: 7, match: ["salad"] },
   { token: "desserts", rank: 8, match: ["dessert", "sweet"] },
   { token: "kids-menu", rank: 9, match: ["kid"] },
+  // Drink tiers — narrowest first.
+  { token: "smoothies", rank: 12, match: ["smoothie", "milkshake", "shake"] },
+  { token: "hot-drinks", rank: 10, match: ["hotdrink", "coffee"] },
   {
-    token: "drinks",
-    rank: 10,
-    match: [
-      "drink",
-      "beverage",
-      "juice",
-      "smoothie",
-      "milkshake",
-      "soda",
-      "coffee",
-      "tea",
-    ],
+    token: "cold-drinks",
+    rank: 11,
+    match: ["softdrink", "colddrink", "soda", "juice", "water"],
   },
+  // Generic catch-all so a plain "drinks" link still resolves.
+  { token: "drinks", rank: 11, match: ["drink", "beverage", "tea"] },
 ];
+
+/** Every token that represents some kind of drink. */
+const DRINK_TOKENS = new Set([
+  "drinks",
+  "hot-drinks",
+  "cold-drinks",
+  "smoothies",
+]);
+
+/**
+ * Token equality, with one deliberate widening: the generic "drinks" token
+ * (used by marketing links such as /menu?category=drinks) matches any of the
+ * three drink tiers. Tier tokens never match each other, so tapping
+ * "Hot Drinks" in the nav still shows only hot drinks.
+ */
+function sameToken(a: string | null, b: string | null): boolean {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a === "drinks" || b === "drinks") {
+    return DRINK_TOKENS.has(a) && DRINK_TOKENS.has(b);
+  }
+  return false;
+}
 
 /** Rank given to a category we do not recognise: before kids/drinks. */
 const UNKNOWN_RANK = 8.5;
@@ -125,9 +149,10 @@ export function categoryMatches(
 ): boolean {
   if (!cat) return false;
   if (cat.id === selection || cat.slug === selection) return true;
-  const a = canonicalToken(`${cat.slug ?? ""} ${cat.name ?? ""}`);
-  const b = canonicalToken(selection);
-  return !!a && a === b;
+  return sameToken(
+    canonicalToken(`${cat.slug ?? ""} ${cat.name ?? ""}`),
+    canonicalToken(selection)
+  );
 }
 
 /** Sort categories into serving order, tie-broken by Clover's sortOrder. */
@@ -156,6 +181,7 @@ export const GRILLED_COLLECTION = {
   rank: 2, // sits directly after Main Dishes
 } as const;
 
+/** True charcoal-grill items: skewers, kababs and grill plates. */
 const GRILL_TERMS = [
   "shish tawook",
   "shish tawok",
@@ -165,13 +191,19 @@ const GRILL_TERMS = [
   "kebab",
   "kofta",
   "adana",
+  "lamb cubes",
   "mix grill",
   "mixed grill",
   "grill",
   "skewer",
-  "arayes",
-  "shawarma",
 ];
+
+/**
+ * Excluded even when a grill term appears: the collection represents food
+ * that comes off the charcoal as a plate or skewer. Shawarma is spit-roasted
+ * rather than grilled, and handhelds belong to Sandwiches.
+ */
+const GRILL_EXCLUSIONS = ["sandwich", "wrap", "shawarma"];
 
 /** Is this dish part of the grilled collection? Matched on dish name. */
 export function isGrilledItem(item: {
@@ -180,9 +212,10 @@ export function isGrilledItem(item: {
 }): boolean {
   const name = (item.name ?? "").toLowerCase();
   if (!name) return false;
+  if (GRILL_EXCLUSIONS.some((t) => name.includes(t))) return false;
   // Drinks and desserts never qualify, even if oddly named.
   const cat = canonicalToken(item.categoryName ?? "");
-  if (cat === "drinks" || cat === "desserts") return false;
+  if (cat && (DRINK_TOKENS.has(cat) || cat === "desserts")) return false;
   return GRILL_TERMS.some((t) => name.includes(t));
 }
 
@@ -190,6 +223,57 @@ export function isGrilledItem(item: {
 export function isGrilledCollection(selection: string): boolean {
   const s = (selection || "").toLowerCase();
   return s === GRILLED_COLLECTION.slug || s === GRILLED_COLLECTION.id;
+}
+
+/* ------------------------------------------------------------------ */
+/* ALL-view item ordering                                              */
+/*                                                                     */
+/* Clover returns inventory in its own order, which leads with drinks. */
+/* The unfiltered menu instead reads as a meal is served: mains, then  */
+/* the grill, working through to smoothies. Purely a display concern — */
+/* item identity, pricing and cart payloads are untouched.             */
+/* ------------------------------------------------------------------ */
+
+export interface SortableItem {
+  name?: string;
+  categoryId?: string;
+  categoryName?: string;
+}
+
+/** Serving rank for a single dish in the unfiltered list. */
+export function itemRank(
+  item: SortableItem,
+  categories: CategoryLike[]
+): number {
+  // Grill items surface as their own course, just after the mains.
+  if (isGrilledItem(item)) return GRILLED_COLLECTION.rank;
+
+  const cat =
+    categories.find((c) => c.id === item.categoryId) ??
+    (item.categoryName ? { name: item.categoryName } : undefined);
+
+  return cat ? categoryRank(cat) : UNKNOWN_RANK;
+}
+
+/**
+ * Deterministic order for the ALL view: course first, then category name so
+ * dishes of the same course stay grouped, then dish name. Never depends on
+ * Clover's sortOrder or on API return order.
+ */
+export function sortItemsForAllView<T extends SortableItem>(
+  items: T[],
+  categories: CategoryLike[]
+): T[] {
+  return [...items].sort((a, b) => {
+    const byCourse = itemRank(a, categories) - itemRank(b, categories);
+    if (byCourse !== 0) return byCourse;
+
+    const catA = (a.categoryName ?? "").toLowerCase();
+    const catB = (b.categoryName ?? "").toLowerCase();
+    if (catA !== catB) return catA.localeCompare(catB);
+
+    return (a.name ?? "").localeCompare(b.name ?? "");
+  });
 }
 
 /**
