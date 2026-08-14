@@ -279,6 +279,9 @@ export const CATEGORY_PHOTOS: Record<string, string> = {
   desserts: P("booza"),
   drinks: P("fresh-juices"),
   "soft-drinks": P("fresh-juices"),
-  "hot-drinks": P("ice-tea"),
+  "cold-drinks": P("fresh-juices"),
+  // Hot drinks must never fall back to the iced-tea frame.
+  "hot-drinks": P("turkish-coffee"),
+  smoothies: P("banana-strawberry"),
   "kids-menu": P("chicken-nuggets"),
 };
