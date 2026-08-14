@@ -109,10 +109,10 @@ export function Footer() {
             ))}
             <li>
               <Link
-                href="/order"
+                href="/menu"
                 className="text-sm text-brand-lime hover:text-white transition-colors font-semibold"
               >
-                Order Online
+                Order Pickup
               </Link>
             </li>
           </ul>
@@ -130,7 +130,7 @@ export function Footer() {
                   onClick={() => trackEvent("slice_click", { source: "footer" })}
                   className="text-sm text-white/75 hover:text-white transition-colors flex items-center gap-1.5"
                 >
-                  Slice — Delivery
+                  Order Delivery
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>
               </li>

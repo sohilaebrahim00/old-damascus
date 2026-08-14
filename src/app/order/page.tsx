@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { OrderingOptions } from "@/components/home/OrderingOptions";
 
 export const metadata: Metadata = {
-  title: "Order Online",
+  title: "Order Pickup or Delivery",
   description:
-    "Order online from Old Damascus Mediterranean Restaurant. Order direct for pickup, or get delivery through Slice.",
+    "Order from Old Damascus Mediterranean Restaurant. Order pickup direct with us, or order delivery through Slice.",
   alternates: { canonical: "/order" },
 };
 
@@ -17,7 +17,8 @@ export default function OrderPage() {
             Place Your Order
           </h1>
           <p className="text-olive mt-2 max-w-md mx-auto">
-            Choose how you want to order. Order directly from us for the best prices and fresh preparation.
+            Order pickup direct with us, or order delivery through our partner
+            Slice.
           </p>
         </div>
 

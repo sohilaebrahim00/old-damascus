@@ -151,7 +151,7 @@ export function OrderingOptions() {
                              transition-all duration-200 hover:bg-white hover:border-white hover:-translate-y-[1.5px]
                              active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
                 >
-                  Start Pickup Order
+                  Order Pickup
                   <ArrowRight
                     className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5"
                     strokeWidth={1.75}
@@ -205,7 +205,7 @@ export function OrderingOptions() {
                              transition-all duration-200 hover:bg-brand-dark hover:text-white hover:-translate-y-[1.5px]
                              active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
                 >
-                  Order Delivery on Slice
+                  Order Delivery
                   <ExternalLink
                     className="w-4 h-4"
                     strokeWidth={1.75}

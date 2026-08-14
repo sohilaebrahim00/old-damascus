@@ -56,7 +56,7 @@ export function FinalCTA() {
                          transition-all duration-300 hover:bg-transparent hover:text-brand-gold
                          focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
             >
-              Order Direct
+              Order Pickup
             </Link>
 
             {integrations.sliceEnabled && (
@@ -69,7 +69,7 @@ export function FinalCTA() {
                            transition-all duration-300 hover:bg-white hover:text-brand-dark hover:border-white
                            focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
               >
-                Order Delivery on Slice
+                Order Delivery
               </a>
             )}
           </div>

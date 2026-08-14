@@ -4,6 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { BRAND_PHOTOS } from "@/data/menu-image-map";
+import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
+import { trackEvent } from "@/lib/analytics";
 
 /* ------------------------------------------------------------------ */
 /* Cinematic hero — full-bleed 4K photography, deep olive-black wash,  */
@@ -82,31 +85,52 @@ export function HeroSection() {
             Damascus has always done it.
           </motion.p>
 
+          {/* Two ways to order, named plainly. Pickup is ours end to end;
+              delivery hands off to Slice. */}
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.05, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col sm:flex-row sm:items-center gap-4 mt-12"
+            className="mt-12"
           >
-            <Link
-              href="/menu"
-              className="group inline-flex items-center justify-center gap-3 rounded-xl border-2 border-brand-gold bg-brand-gold
-                         px-9 py-4 text-xs font-bold uppercase tracking-[0.18em] text-brand-dark
-                         transition-all duration-300 hover:bg-transparent hover:text-brand-gold
-                         focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
-            >
-              Explore Menu
-            </Link>
+            <div className="flex flex-col sm:flex-row sm:items-stretch gap-4">
+              <Link
+                href="/menu"
+                id="hero-pickup-btn"
+                className="group flex-1 sm:flex-none sm:min-w-[210px] inline-flex flex-col items-center justify-center
+                           rounded-xl border-2 border-brand-gold bg-brand-gold px-9 py-4
+                           transition-all duration-300 hover:bg-transparent
+                           focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+              >
+                <span className="text-xs font-bold uppercase tracking-[0.18em] text-brand-dark transition-colors duration-300 group-hover:text-brand-gold">
+                  Order Pickup
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.16em] text-brand-dark/60 mt-1 transition-colors duration-300 group-hover:text-brand-gold/70">
+                  Direct with us
+                </span>
+              </Link>
 
-            <Link
-              href="/order"
-              className="group inline-flex items-center justify-center gap-3 rounded-xl border-2 border-white/35 bg-white/5 backdrop-blur-sm
-                         px-9 py-4 text-xs font-bold uppercase tracking-[0.18em] text-white
-                         transition-all duration-300 hover:bg-white hover:text-brand-dark hover:border-white
-                         focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
-            >
-              Order Online
-            </Link>
+              {integrations.sliceEnabled && (
+                <a
+                  href={restaurant.sliceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent("slice_click", { source: "hero" })}
+                  id="hero-delivery-btn"
+                  className="group flex-1 sm:flex-none sm:min-w-[210px] inline-flex flex-col items-center justify-center
+                             rounded-xl border-2 border-white/35 bg-white/5 backdrop-blur-sm px-9 py-4
+                             transition-all duration-300 hover:bg-white hover:border-white
+                             focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+                >
+                  <span className="text-xs font-bold uppercase tracking-[0.18em] text-white transition-colors duration-300 group-hover:text-brand-dark">
+                    Order Delivery
+                  </span>
+                  <span className="text-[10px] uppercase tracking-[0.16em] text-white/50 mt-1 transition-colors duration-300 group-hover:text-brand-dark/60">
+                    Powered by Slice
+                  </span>
+                </a>
+              )}
+            </div>
           </motion.div>
         </div>
       </div>

@@ -240,11 +240,33 @@ export interface SortableItem {
   categoryName?: string;
 }
 
+/**
+ * Signature dishes that read as main courses to a guest even though Clover
+ * files them under SPECIALTIES. Promoted for display ranking only — the
+ * item's real categoryId, tab placement, pricing and cart payload are
+ * untouched, and the Specialties tab still lists them.
+ */
+const MAIN_DISH_TERMS = [
+  "mandi",
+  "kabsa",
+  "kabsah",
+  "shawarma plate", // excludes the shawarma sandwich, which stays a handheld
+];
+
+function isPromotedMainDish(item: SortableItem): boolean {
+  const name = (item.name ?? "").toLowerCase();
+  if (!name) return false;
+  return MAIN_DISH_TERMS.some((t) => name.includes(t));
+}
+
 /** Serving rank for a single dish in the unfiltered list. */
 export function itemRank(
   item: SortableItem,
   categories: CategoryLike[]
 ): number {
+  // Signature mains lead, wherever Clover happens to file them.
+  if (isPromotedMainDish(item)) return 1;
+
   // Grill items surface as their own course, just after the mains.
   if (isGrilledItem(item)) return GRILLED_COLLECTION.rank;
 

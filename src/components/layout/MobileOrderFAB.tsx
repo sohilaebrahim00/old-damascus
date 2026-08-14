@@ -45,7 +45,7 @@ export function MobileOrderFAB() {
               aria-label="Order Online Options"
             >
               <ShoppingBag className="w-5 h-5" />
-              <span className="font-semibold text-sm">Order Online</span>
+              <span className="font-semibold text-sm">Order</span>
             </button>
           </motion.div>
         )}
@@ -100,7 +100,7 @@ export function MobileOrderFAB() {
                 >
                   <div className="flex items-center gap-3">
                     <ShoppingBag className="w-5 h-5" />
-                    <span>Direct Online Order</span>
+                    <span>Order Pickup</span>
                   </div>
                   <span className="text-xs text-white/70">Pickup</span>
                 </motion.a>
@@ -118,7 +118,7 @@ export function MobileOrderFAB() {
                     className="w-full py-4 px-4 border border-border text-olive-dark bg-white rounded-xl font-semibold flex items-center justify-between hover:border-brand-dark transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-brand-dark font-bold">Slice</span>
+                      <span className="text-brand-dark font-bold">Order Delivery</span>
                       <span className="text-xs text-olive/70 font-medium">
                         Delivery
                       </span>

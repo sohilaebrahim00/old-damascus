@@ -227,7 +227,8 @@ export const MENU_IMAGE_MAP: Record<string, string | ImageMapping> = {
   "sparkling water": shot("water"),
   "sparkling-water": shot("water"),
   // Hot drinks get a hot-drink frame; iced tea keeps the cold one.
-  tea: shot("turkish-coffee"),
+  tea: shot("tea"),
+  "hot tea": shot("tea"),
   "american coffee": shot("turkish-coffee"),
   "american-coffee": shot("turkish-coffee"),
   "item-turkish-coffee": shot("turkish-coffee"),

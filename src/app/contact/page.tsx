@@ -337,7 +337,7 @@ export default function ContactPage() {
                 variants={fadeUp}
                 className="bg-white p-4 rounded-2xl shadow-sm border border-border/50 flex flex-col items-center justify-center gap-2 hover:-translate-y-1 transition-transform group"
               >
-                <div className="font-semibold text-brand-dark group-hover:text-brand-gold transition-colors">Order Direct</div>
+                <div className="font-semibold text-brand-dark group-hover:text-brand-gold transition-colors">Order Pickup</div>
                 <div className="text-xs text-olive">Pickup</div>
               </motion.a>
               {integrations.sliceEnabled && (

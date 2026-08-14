@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
 import { cn } from "@/lib/utils";
 import { fadeUp } from "@/lib/motion";
 import { trackEvent } from "@/lib/analytics";
@@ -257,12 +258,9 @@ export function Header({
 
               <div className="w-px h-8 bg-border/80 mx-2" />
 
-              <a
-                href="/order"
-                className="btn-primary"
-              >
-                Order Online
-              </a>
+              <Link href="/menu" className="btn-primary">
+                Order Pickup
+              </Link>
             </div>
 
             {/* Mobile Actions */}
@@ -395,13 +393,26 @@ export function Header({
                   {restaurant.phone}
                 </a>
 
-                <div className="pt-2">
-                  <a
-                    href="/order"
+                <div className="pt-2 space-y-3">
+                  <Link
+                    href="/menu"
                     className="btn-primary w-full justify-center text-lg py-4 shadow-lg"
                   >
-                    Order Online
-                  </a>
+                    Order Pickup
+                  </Link>
+                  {integrations.sliceEnabled && (
+                    <a
+                      href={restaurant.sliceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() =>
+                        trackEvent("slice_click", { source: "header_mobile" })
+                      }
+                      className="btn-outline w-full justify-center text-lg py-4"
+                    >
+                      Order Delivery
+                    </a>
+                  )}
                 </div>
               </div>
             </motion.div>
