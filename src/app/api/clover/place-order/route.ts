@@ -104,11 +104,29 @@ export async function POST(req: Request) {
       items: cartItems,
       orderType,
       customer,
-      deliveryAddress,
       notes,
       tipAmount,
       paymentToken,
     } = result.data;
+
+    // 3.5. Fulfillment guard — delivery is fulfilled by Slice, never by us.
+    //
+    // The storefront no longer offers delivery at checkout, but this endpoint
+    // is reachable directly. Reject before any Clover order is created and
+    // before any card is charged, so a hand-crafted request cannot open a
+    // delivery ticket on the merchant's POS.
+    if (orderType !== "pickup") {
+      console.warn(
+        `[Place Order] Rejected non-pickup order type "${orderType}" for reference ${checkoutReference}`
+      );
+      return NextResponse.json(
+        {
+          error: "Delivery orders must be placed through Slice.",
+          code: "DELIVERY_NOT_SUPPORTED",
+        },
+        { status: 400 }
+      );
+    }
 
     // 4. Idempotency Check
     const existingOrder = await getOrder(checkoutReference);
@@ -222,11 +240,8 @@ export async function POST(req: Request) {
 
     // Construct customer note for Clover Ticket printing
     const customerInfoStr = `${customer.firstName} ${customer.lastName} (${customer.phone})`;
-    const fulfillmentStr =
-      orderType === "delivery" && deliveryAddress
-        ? `Delivery: ${deliveryAddress.street}, ${deliveryAddress.city}, ${deliveryAddress.state} ${deliveryAddress.zip}`
-        : "Pickup";
-    const cloverNote = `[Website Order] #${orderNumber}\nCustomer: ${customerInfoStr}\nFulfillment: ${fulfillmentStr}\nNotes: ${
+    // Guarded above: only pickup reaches this point.
+    const cloverNote = `[Website Order] #${orderNumber}\nCustomer: ${customerInfoStr}\nFulfillment: Pickup\nNotes: ${
       notes || "None"
     }`;
 
@@ -283,8 +298,7 @@ export async function POST(req: Request) {
       cloverOrderId,
       notes: notes || "",
       pickupTime: "", // optional/scheduled
-      deliveryAddress:
-        orderType === "delivery" && deliveryAddress ? deliveryAddress : undefined,
+      deliveryAddress: undefined, // pickup-only endpoint
       items: dbOrderItems,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

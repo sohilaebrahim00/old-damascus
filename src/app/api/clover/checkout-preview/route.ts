@@ -54,6 +54,19 @@ export async function POST(req: Request) {
 
     const { items: cartItems, orderType, tipAmount = 0 } = result.data;
 
+    // 2.5. Fulfillment guard — this endpoint opens a real (short-lived) draft
+    // order on Clover, so delivery must be turned away here too, not just at
+    // place-order.
+    if (orderType !== "pickup") {
+      return NextResponse.json(
+        {
+          error: "Delivery orders must be placed through Slice.",
+          code: "DELIVERY_NOT_SUPPORTED",
+        },
+        { status: 400 }
+      );
+    }
+
     // 3. Resolve local items and modifiers against database/seed
     const { items: allMenuItems } = await getMenuItems();
     const verifiedItemsToCreate = [];
