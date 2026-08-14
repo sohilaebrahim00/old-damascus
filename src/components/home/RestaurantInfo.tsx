@@ -2,6 +2,7 @@
 
 import { Phone, MapPin, Clock, ExternalLink, Navigation } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
 
 export function RestaurantInfo() {
   return (
@@ -143,24 +144,17 @@ export function RestaurantInfo() {
                 Google Review
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
-              <a
-                href={restaurant.doordashUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-outline btn-sm flex-1"
-              >
-                DoorDash
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-              <a
-                href={restaurant.uberEatsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-outline btn-sm flex-1"
-              >
-                Uber Eats
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              {integrations.sliceEnabled && (
+                <a
+                  href={restaurant.sliceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline btn-sm flex-1"
+                >
+                  Order Delivery on Slice
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
             </div>
           </div>
         </div>

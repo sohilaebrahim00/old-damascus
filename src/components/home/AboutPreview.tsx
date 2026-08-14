@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight, Leaf, ChefHat, CheckCircle } from "lucide-react";
+import { BRAND_PHOTOS } from "@/data/menu-image-map";
 
 export function AboutPreview() {
   return (
@@ -14,14 +15,11 @@ export function AboutPreview() {
         {/* Image */}
         <div className="relative h-80 lg:h-full min-h-[400px] rounded-3xl overflow-hidden">
           <Image
-            src="/restaurant/about-interior.jpg"
-            alt="Old Damascus restaurant interior"
+            src={BRAND_PHOTOS.heritage}
+            alt="A full Damascene spread — grilled platter, mezze, salads and warm bread"
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-brand-olive/40 to-transparent rounded-3xl" />
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import Link from "next/link";
 import { Leaf, ChefHat, Handshake } from "lucide-react";
+import { BRAND_PHOTOS } from "@/data/menu-image-map";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -41,9 +42,9 @@ export default function AboutPage() {
           </div>
           <div className="relative h-80 rounded-3xl overflow-hidden shadow-card">
             <ImageWithFallback
-              src="/restaurant/about-interior.jpg"
-              fallbackSrc="/menu/placeholder.jpg"
-              alt="Old Damascus Dining Room"
+              src={BRAND_PHOTOS.heritage}
+              fallbackSrc={BRAND_PHOTOS.placeholder}
+              alt="A full Damascene spread — grilled platter, mezze, salads and warm bread"
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"

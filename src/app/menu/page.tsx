@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { MenuPageClient } from "@/components/menu/MenuPageClient";
-import { getMenuItems, getMenuCategories } from "@/services/menu.service";
+import { getMenu } from "@/services/menu.service";
 
 export const metadata: Metadata = {
   title: "Menu",
@@ -12,10 +12,9 @@ export const metadata: Metadata = {
 export const revalidate = 300; // 5 minutes
 
 export default async function MenuPage() {
-  const [{ items, source }, categories] = await Promise.all([
-    getMenuItems(),
-    getMenuCategories(),
-  ]);
+  // Single atomic read: items and categories must originate from the same
+  // source or category filtering silently matches nothing.
+  const { items, categories, source } = await getMenu();
 
   return <MenuPageClient items={items} categories={categories} source={source} />;
 }

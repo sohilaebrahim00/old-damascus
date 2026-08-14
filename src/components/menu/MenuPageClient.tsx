@@ -3,11 +3,26 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, SlidersHorizontal, X, ShoppingBag, Eye, Flame, CheckCircle, Utensils } from "lucide-react";
+import { Search, SlidersHorizontal, X, Flame, CheckCircle, Utensils, ShoppingBag } from "lucide-react";
 import type { MenuItem, MenuCategory } from "@/types";
 import { useCartStore } from "@/store/cart.store";
 import { formatPrice, cn } from "@/lib/utils";
-import { getMenuItemMapping } from "@/data/menu-image-map";
+import {
+  getMenuItemMapping,
+  BRAND_PHOTOS,
+  CATEGORY_PHOTOS,
+} from "@/data/menu-image-map";
+import { BrandPattern } from "@/components/brand/BrandPattern";
+import {
+  canonicalToken,
+  categoryDisplayName,
+  categoryRank,
+  GRILLED_COLLECTION,
+  isGrilledCollection,
+  isGrilledItem,
+  makeCategoryPredicate,
+  sortCategories,
+} from "@/lib/menu-categories";
 import { motion } from "framer-motion";
 import { staggerContainer, fadeUp } from "@/lib/motion";
 import { trackEvent } from "@/lib/analytics";
@@ -17,6 +32,7 @@ interface MenuPageClientProps {
   categories: MenuCategory[];
   source: "clover" | "seed";
 }
+
 
 export function MenuPageClient({ items, categories, source }: MenuPageClientProps) {
   const [search, setSearch] = useState("");
@@ -32,14 +48,31 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
   const { addItem } = useCartStore();
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // Sorted categories with "All" first
-  const sortedCategories = useMemo(
-    () =>
-      [{ id: "all", name: "All", slug: "all" } as MenuCategory & { slug: string }, ...categories].sort(
-        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-      ),
-    [categories]
-  );
+  // Menu reads like a served meal, not a warehouse listing: mains lead,
+  // drinks and kids close it out. Clover's own sortOrder puts drinks first,
+  // so it is deliberately ignored except as a tie-breaker.
+  const sortedCategories = useMemo(() => {
+    const all = { id: "all", name: "All", slug: "all" } as MenuCategory;
+    const ordered = sortCategories(categories);
+
+    // The grilled collection is a display lens, not a Clover category. It is
+    // only offered when the live catalogue actually contains grill items.
+    if (!items.some(isGrilledItem)) return [all, ...ordered];
+
+    const collection = {
+      id: GRILLED_COLLECTION.id,
+      slug: GRILLED_COLLECTION.slug,
+      name: GRILLED_COLLECTION.name,
+      sortOrder: 0,
+      available: true,
+    } as MenuCategory;
+
+    // Seat it directly after Main Dishes.
+    const at = ordered.findIndex((c) => categoryRank(c) > GRILLED_COLLECTION.rank - 1);
+    const out = [...ordered];
+    out.splice(at < 0 ? out.length : at, 0, collection);
+    return [all, ...out];
+  }, [categories, items]);
 
   // Apply URL search param on mount
   useEffect(() => {
@@ -51,16 +84,30 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
     }
   }, []);
 
-  // Normalize images
+  // Resolve photography: explicit mapping first, then whatever the provider
+  // supplied, then the category's own shot, then the house placeholder. No
+  // menu item should ever render without an image.
   const normalizedItems = useMemo(() => {
     return items.map((item) => {
-      const mapping = getMenuItemMapping(item.cloverItemId || item.id)
-        || getMenuItemMapping(item.id)
-        || getMenuItemMapping(item.name)
-        || getMenuItemMapping(item.slug);
+      const mapping =
+        getMenuItemMapping(item.cloverItemId || item.id) ||
+        getMenuItemMapping(item.id) ||
+        getMenuItemMapping(item.name) ||
+        getMenuItemMapping(item.slug);
 
-      const primaryImage = mapping ? mapping.primary : (item.primaryImage || item.image || "");
-      const gallery = mapping ? mapping.gallery : (item.images || (primaryImage ? [primaryImage] : []));
+      const categoryFallback =
+        CATEGORY_PHOTOS[canonicalToken(item.categoryName ?? "") ?? ""] ?? "";
+
+      const primaryImage =
+        mapping?.primary ||
+        item.primaryImage ||
+        item.image ||
+        categoryFallback ||
+        BRAND_PHOTOS.placeholder;
+
+      const gallery =
+        mapping?.gallery ??
+        (item.images?.length ? item.images : [primaryImage]);
 
       return {
         ...item,
@@ -85,13 +132,26 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
       );
     }
 
-    if (activeCategory !== "all") {
-      result = result.filter(
-        (item) =>
-          item.categoryId === activeCategory ||
-          // match by slug from category object
-          categories.find((c) => c.id === item.categoryId)?.slug === activeCategory
-      );
+    if (isGrilledCollection(activeCategory)) {
+      // Display-only lens across the real categories.
+      result = result.filter(isGrilledItem);
+    } else if (activeCategory !== "all") {
+      const matches = makeCategoryPredicate(categories, activeCategory);
+
+      const byCategory = result.filter((item) => {
+        if (item.categoryId === activeCategory) return true;
+        const cat = categories.find((c) => c.id === item.categoryId);
+        if (matches(cat)) return true;
+        // Last resort for seed data, whose categoryId may not be in the list.
+        return matches({ name: item.categoryName, slug: item.categoryName });
+      });
+
+      // Guard: a stale or unknown ?category= token must not render an empty
+      // menu. Only apply the filter when it actually resolves to something.
+      const categoryExists = categories.some((c) => matches(c));
+      if (categoryExists || byCategory.length > 0) {
+        result = byCategory;
+      }
     }
 
     if (filters.vegetarian) result = result.filter((i) => i.vegetarian);
@@ -142,44 +202,84 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* Header */}
-      <div className="bg-brand-dark text-white py-12 sm:py-16">
-        <div className="container-site text-center">
-          <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
-            Our Menu
+      {/* Editorial Header */}
+      <div className="relative overflow-hidden bg-brand-dark">
+        <Image
+          src={BRAND_PHOTOS.hero}
+          alt=""
+          aria-hidden="true"
+          fill
+          className="object-cover opacity-30"
+          sizes="100vw"
+          priority
+          quality={80}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/85 to-brand-dark/60"
+        />
+        <BrandPattern className="text-brand-gold" scale={104} opacity={0.06} />
+
+        <div className="relative z-10 container-site py-24 sm:py-32">
+          <span className="flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-gold">
+            <span className="w-10 h-px bg-brand-gold/60" aria-hidden="true" />
+            Old Damascus
+          </span>
+          <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-semibold text-white tracking-tight mt-6 leading-[1.02]">
+            The Menu
           </h1>
-          <p className="text-white/80 text-lg max-w-xl mx-auto">
-            Fresh Mediterranean cuisine — prepared daily with
-            authentic ingredients.
+          <p className="text-white/60 text-lg mt-6 max-w-lg font-light leading-relaxed">
+            Charcoal-grilled over open flame, mezze made each morning, rice
+            slow-spiced the way Damascus has always done it.
           </p>
           {source === "clover" && (
-            <p className="text-brand-lime text-xs mt-3 font-semibold flex items-center justify-center gap-1">
-              <CheckCircle className="w-3.5 h-3.5" /> Live menu from Clover
+            <p className="text-brand-gold/70 text-[11px] mt-8 font-semibold uppercase tracking-[0.2em] flex items-center gap-2">
+              <CheckCircle className="w-3.5 h-3.5" /> Live pricing
             </p>
           )}
         </div>
       </div>
 
-      {/* Sticky Category Bar */}
-      <div className="sticky top-[72px] z-20 bg-white border-b border-border shadow-sm">
+      {/* Sticky Category Nav */}
+      <div className="sticky top-[72px] z-20 bg-cream/95 backdrop-blur-md border-b border-border">
         <div className="container-site">
-          <div className="flex items-center gap-3 py-3 overflow-x-auto scrollbar-none">
-            {sortedCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id === "all" ? "all" : (cat as MenuCategory).slug ?? cat.id)}
-                className={cn(
-                  "cat-pill flex-shrink-0",
-                  (activeCategory === "all" && cat.id === "all") ||
-                    (cat as MenuCategory).slug === activeCategory ||
-                    cat.id === activeCategory
-                    ? "cat-pill-active"
-                    : ""
-                )}
-              >
-                {cat.name}
-              </button>
-            ))}
+          <div className="flex items-center gap-8 py-4 overflow-x-auto scrollbar-none">
+            {sortedCategories.map((cat) => {
+              const slug = (cat as MenuCategory).slug ?? cat.id;
+              const isCollection = cat.id === GRILLED_COLLECTION.id;
+              const isActive =
+                cat.id === "all"
+                  ? activeCategory === "all"
+                  : isCollection
+                    ? isGrilledCollection(activeCategory)
+                    : !isGrilledCollection(activeCategory) &&
+                      makeCategoryPredicate(categories, activeCategory)(cat);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() =>
+                    setActiveCategory(cat.id === "all" ? "all" : slug)
+                  }
+                  className={cn(
+                    "relative flex-shrink-0 pb-1.5 text-[11px] font-bold uppercase tracking-[0.18em] transition-colors duration-300 cursor-pointer outline-none",
+                    "focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-brand-gold rounded",
+                    isActive
+                      ? "text-brand-dark"
+                      : "text-olive/60 hover:text-brand-dark"
+                  )}
+                  aria-current={isActive ? "true" : undefined}
+                >
+                  {categoryDisplayName(cat)}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "absolute left-0 bottom-0 h-px bg-brand-gold transition-all duration-400",
+                      isActive ? "w-full" : "w-0"
+                    )}
+                  />
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -287,8 +387,8 @@ export function MenuPageClient({ items, categories, source }: MenuPageClientProp
             </button>
           </div>
         ) : (
-          <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 sm:gap-y-16"
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
@@ -338,99 +438,102 @@ function MenuItemCard({
     setHasError(false);
   }, [imageSrc]);
 
-  if (index < 4) {
-    console.log({
-      name: item.name,
-      image: item.image,
-      primaryImage: item.primaryImage,
-      images: item.images,
-      imageSrc
-    });
-  }
-
   return (
-    <article className="card flex flex-col group h-full overflow-hidden transition-transform duration-300 hover:-translate-y-[3px]">
-      {/* Image or Neutral Block */}
-      <div className="relative aspect-square w-full bg-cream flex items-center justify-center">
+    <article className="group flex flex-col h-full">
+      {/* Photography */}
+      <Link
+        href={`/menu/${item.slug}`}
+        className="relative block aspect-[4/3] w-full overflow-hidden rounded-2xl bg-cream-warm
+                   shadow-card transition-shadow duration-500 group-hover:shadow-card-hover
+                   focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-brand-gold outline-none"
+        aria-label={`View ${item.name}`}
+      >
         {imageSrc && !hasError ? (
           <Image
             src={imageSrc}
             alt={item.name}
             fill
-            className="object-cover transition-transform duration-[340ms] group-hover:scale-[1.035] z-0 opacity-100"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.07]"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            quality={80}
+            loading={index < 6 ? "eager" : "lazy"}
             onError={() => setHasError(true)}
           />
         ) : (
-          <div className="w-full h-full bg-olive-light/10 flex flex-col items-center justify-center text-olive p-4 text-center">
-            <Utensils className="w-8 h-8 mb-2 opacity-50" />
-            <span className="text-sm font-medium opacity-80">Image unavailable</span>
+          <div className="w-full h-full bg-cream-warm flex flex-col items-center justify-center text-olive/40">
+            <Utensils className="w-7 h-7" strokeWidth={1.25} />
           </div>
         )}
-        <div className="absolute inset-0 bg-card-gradient" />
-        {!item.available && (
-          <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-lg">
-            Unavailable
-          </div>
-        )}
-        <span className="absolute bottom-3 left-3 text-xs text-white/80 font-medium bg-black/30 px-2 py-0.5 rounded-full">
-          {item.categoryName}
-        </span>
-      </div>
 
-      <div className="flex flex-col flex-1 p-4 gap-3">
-        <div>
-          <h2 className="font-heading text-base font-semibold text-olive-dark line-clamp-1">
+        {!item.available && (
+          <div className="absolute inset-0 bg-brand-dark/55 flex items-center justify-center">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white border border-white/50 px-3 py-1.5 rounded-full">
+              Unavailable
+            </span>
+          </div>
+        )}
+      </Link>
+
+      {/* Copy */}
+      <div className="flex flex-col flex-1 pt-6">
+        <h2 className="font-heading text-xl sm:text-2xl font-semibold text-olive-dark tracking-tight leading-snug">
+          <Link
+            href={`/menu/${item.slug}`}
+            className="hover:text-brand-gold transition-colors outline-none focus-visible:underline"
+          >
             {item.name}
-          </h2>
-          <p className="text-xs text-olive mt-1 line-clamp-2 leading-relaxed">
+          </Link>
+        </h2>
+
+        {item.description && (
+          <p className="text-sm text-olive/75 mt-3 line-clamp-2 leading-relaxed font-light">
             {item.description}
           </p>
-        </div>
+        )}
 
-        {/* Badges */}
-        <div className="flex flex-wrap gap-1">
-          {/* Unverified badges removed based on instructions */}
-          {item.spicy && (
-            <span className="badge badge-red">
-              <Flame className="w-2.5 h-2.5" /> Spicy
-            </span>
-          )}
-        </div>
+        {item.spicy && (
+          <span className="inline-flex items-center gap-1.5 mt-3 text-[10px] font-bold uppercase tracking-[0.16em] text-error self-start">
+            <Flame className="w-3 h-3" strokeWidth={1.75} /> Spicy
+          </span>
+        )}
 
-        {/* Price + CTA */}
-        <div className="flex items-center justify-between mt-auto pt-2 border-t border-border">
-          <span className="price-tag">{formatPrice(item.price)}</span>
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/menu/${item.slug}`}
-              className="p-2 rounded-lg hover:bg-cream transition-colors text-olive outline-none focus-visible:ring-2 focus-visible:ring-brand-gold hover:-translate-y-[1px] active:scale-[0.98]"
-              aria-label={`View ${item.name} details`}
-            >
-              <Eye className="w-4 h-4" />
-            </Link>
-            <button
-              onClick={handleAdd}
-              disabled={!item.available || isAdded}
-              className={cn(
-                "btn-primary btn-sm transition-all duration-200 min-w-[80px]",
-                isAdded ? "bg-brand-green border-brand-green" : "disabled:opacity-40"
-              )}
-              aria-label={`Add ${item.name} to cart`}
-            >
-              {isAdded ? (
-                <>
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  Added
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  Add
-                </>
-              )}
-            </button>
-          </div>
+        {/* Price + explicit ordering action */}
+        <div className="mt-auto pt-6 flex items-center justify-between gap-4">
+          <span className="font-heading text-2xl font-semibold text-brand-dark leading-none">
+            {formatPrice(item.price)}
+          </span>
+
+          <button
+            onClick={handleAdd}
+            disabled={!item.available || isAdded}
+            className={cn(
+              "inline-flex items-center justify-center gap-2 rounded-xl border-2 px-5 py-3",
+              "text-[11px] font-bold uppercase tracking-[0.16em] cursor-pointer",
+              "transition-all duration-300 outline-none whitespace-nowrap",
+              "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold",
+              "disabled:cursor-not-allowed",
+              isAdded
+                ? "border-brand-green bg-brand-green text-white"
+                : item.available
+                  ? "border-brand-dark bg-brand-dark text-white hover:bg-brand-gold hover:border-brand-gold hover:text-brand-dark hover:-translate-y-[1.5px] active:scale-[0.98]"
+                  : "border-border bg-transparent text-olive/50"
+            )}
+            aria-label={`Add ${item.name} to cart`}
+          >
+            {isAdded ? (
+              <>
+                <CheckCircle className="w-3.5 h-3.5" strokeWidth={2} />
+                Added
+              </>
+            ) : item.available ? (
+              <>
+                <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.75} />
+                Add to Cart
+              </>
+            ) : (
+              "Unavailable"
+            )}
+          </button>
         </div>
       </div>
     </article>

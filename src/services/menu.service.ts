@@ -39,6 +39,7 @@ export class CloverMenuProvider implements MenuProvider {
   private categories: MenuCategory[] | null = null;
   private items: MenuItem[] | null = null;
   private loadedAt: number | null = null;
+  private inFlight: Promise<void> | null = null;
   private readonly ttlMs = 5 * 60 * 1000; // 5 minutes
 
   private isStale(): boolean {
@@ -64,19 +65,35 @@ export class CloverMenuProvider implements MenuProvider {
   private async ensureLoaded(): Promise<void> {
     if (!this.isStale()) return;
 
-    const rawCategories = await fetchCloverCategories();
-    // We need CloverCategory[] for the mapper — use the raw data
-    const cloverCats = rawCategories.map((c) => ({
-      id: c.cloverCategoryId || c.id,
-      name: c.name,
-      sortOrder: c.sortOrder,
-    }));
+    // Single-flight: getItems() and getCategories() are called together via
+    // Promise.all, and each used to trigger a full inventory pull. That
+    // doubled every request and tipped the merchant into HTTP 429, which in
+    // turn forced the seed fallback. Concurrent callers now share one load.
+    if (this.inFlight) return this.inFlight;
 
-    const items = await fetchCloverItems(cloverCats as Parameters<typeof fetchCloverItems>[0]);
+    this.inFlight = (async () => {
+      const rawCategories = await fetchCloverCategories();
+      // We need CloverCategory[] for the mapper — use the raw data
+      const cloverCats = rawCategories.map((c) => ({
+        id: c.cloverCategoryId || c.id,
+        name: c.name,
+        sortOrder: c.sortOrder,
+      }));
 
-    this.categories = rawCategories;
-    this.items = items;
-    this.loadedAt = Date.now();
+      const items = await fetchCloverItems(
+        cloverCats as Parameters<typeof fetchCloverItems>[0]
+      );
+
+      this.categories = rawCategories;
+      this.items = items;
+      this.loadedAt = Date.now();
+    })();
+
+    try {
+      await this.inFlight;
+    } finally {
+      this.inFlight = null;
+    }
   }
 
   invalidateCache(): void {
@@ -96,6 +113,54 @@ export function getMenuProvider(): MenuProvider {
     _cachedProvider = new LocalSeedMenuProvider();
   }
   return _cachedProvider;
+}
+
+/**
+ * Atomic menu read — items and categories always come from the SAME source.
+ *
+ * Previously the page called getMenuItems() and getMenuCategories() in
+ * parallel and each fell back independently. A single Clover hiccup could
+ * therefore pair SEED items (categoryId "cat-mains") with CLOVER categories
+ * (id "KTRNMHZMS0HT8"), so no item matched any category and every filter
+ * rendered "No items found". Fetch them together or not at all.
+ */
+export async function getMenu(): Promise<{
+  items: MenuItem[];
+  categories: MenuCategory[];
+  source: "clover" | "seed";
+  error?: string;
+}> {
+  if (!isCloverConfigured()) {
+    return { items: SEED_MENU_ITEMS, categories: SEED_CATEGORIES, source: "seed" };
+  }
+
+  try {
+    const provider = getMenuProvider();
+
+    const [items, categories] = await Promise.race([
+      Promise.all([provider.getItems(), provider.getCategories()]),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Clover menu fetch timed out")), 8000)
+      ),
+    ]);
+
+    // A successful call that yields nothing is a failure in disguise —
+    // rendering an empty menu is worse than rendering the seed.
+    if (!items.length || !categories.length) {
+      throw new Error("Clover returned an empty menu");
+    }
+
+    return { items, categories, source: "clover" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown Clover error";
+    console.error("[MenuService] Clover unavailable, using seed:", message);
+    return {
+      items: SEED_MENU_ITEMS,
+      categories: SEED_CATEGORIES,
+      source: "seed",
+      error: message,
+    };
+  }
 }
 
 /** Main entry point — falls back to seed on Clover failure */

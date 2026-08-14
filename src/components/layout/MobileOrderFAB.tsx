@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, X, Phone, ExternalLink } from "lucide-react";
 import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
 import { staggerContainer, fadeUp } from "@/lib/motion";
 import { trackEvent } from "@/lib/analytics";
 
@@ -93,7 +94,7 @@ export function MobileOrderFAB() {
               >
                 <motion.a
                   variants={fadeUp}
-                  href="/order"
+                  href="/menu"
                   onClick={() => setIsOpen(false)}
                   className="w-full py-4 px-4 bg-brand-dark text-white rounded-xl font-semibold flex items-center justify-between hover:bg-olive-dark transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
                 >
@@ -104,39 +105,27 @@ export function MobileOrderFAB() {
                   <span className="text-xs text-white/70">Pickup</span>
                 </motion.a>
 
-                <motion.a
-                  variants={fadeUp}
-                  href={restaurant.doordashUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    trackEvent("doordash_click", { source: "mobile_fab" });
-                    setIsOpen(false);
-                  }}
-                  className="w-full py-4 px-4 border border-border text-olive-dark bg-white rounded-xl font-semibold flex items-center justify-between hover:border-brand-dark transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-brand-dark font-bold">DoorDash</span>
-                  </div>
-                  <ExternalLink className="w-4 h-4 text-olive/50" />
-                </motion.a>
-
-                <motion.a
-                  variants={fadeUp}
-                  href={restaurant.uberEatsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    trackEvent("ubereats_click", { source: "mobile_fab" });
-                    setIsOpen(false);
-                  }}
-                  className="w-full py-4 px-4 border border-border text-olive-dark bg-white rounded-xl font-semibold flex items-center justify-between hover:border-brand-dark transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-brand-dark font-bold">Uber Eats</span>
-                  </div>
-                  <ExternalLink className="w-4 h-4 text-olive/50" />
-                </motion.a>
+                {integrations.sliceEnabled && (
+                  <motion.a
+                    variants={fadeUp}
+                    href={restaurant.sliceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      trackEvent("slice_click", { source: "mobile_fab" });
+                      setIsOpen(false);
+                    }}
+                    className="w-full py-4 px-4 border border-border text-olive-dark bg-white rounded-xl font-semibold flex items-center justify-between hover:border-brand-dark transition-colors focus-visible:ring-2 focus-visible:ring-brand-gold outline-none"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-brand-dark font-bold">Slice</span>
+                      <span className="text-xs text-olive/70 font-medium">
+                        Delivery
+                      </span>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-olive/50" />
+                  </motion.a>
+                )}
 
                 <motion.a
                   variants={fadeUp}

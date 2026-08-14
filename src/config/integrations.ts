@@ -21,6 +21,11 @@ export const integrations = {
   pickupEnabled: true,
   deliveryEnabled: false, // disabled until confirmed by client
 
+  // Slice — external delivery ordering partner (link-out only, no API).
+  // Set to false to hide every "Order Delivery on Slice" entry point at once.
+  // URL lives in restaurant.ts as `sliceUrl`.
+  sliceEnabled: true,
+
   // Guest checkout is always available
   guestCheckoutEnabled: true,
 

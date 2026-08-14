@@ -90,7 +90,10 @@ export function mapCloverItem(
     image: mapping ? mapping.primary : "", 
     primaryImage: mapping ? mapping.primary : "",
     images: mapping ? mapping.gallery : [],
-    available: item.available !== false && !item.hidden,
+    // Only Clover may declare an item unavailable. Absent fields mean
+    // "no opinion" and must read as available — treating undefined as
+    // unavailable is what buried most of the menu behind "Unavailable".
+    available: item.available !== false && item.deleted !== true,
     modifierGroups,
     source: "clover",
     lastVerifiedAt: new Date().toISOString(),

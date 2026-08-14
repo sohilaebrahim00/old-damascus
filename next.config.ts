@@ -10,8 +10,12 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2560],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Next 16 only serves qualities declared here (defaults to [75] alone).
+    // Every quality={...} used in components must be listed or the
+    // optimizer responds 400 and the image fails to load.
+    qualities: [75, 80, 82, 85, 90],
   },
   async headers() {
     return [

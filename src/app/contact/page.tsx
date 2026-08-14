@@ -6,8 +6,10 @@ import { z } from "zod";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, CheckCircle, AlertCircle, HelpCircle, Loader2, ArrowRight } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/motion";
+import { trackEvent } from "@/lib/analytics";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -23,7 +25,7 @@ type ContactFormValues = z.infer<typeof contactSchema>;
 const FAQS = [
   {
     q: "Do you offer delivery?",
-    a: "Yes! You can order delivery directly from our website using our Clover system, or complete your delivery through DoorDash or Uber Eats.",
+    a: "Yes! You can order direct from our website for pickup using our secure Clover checkout, or have your order delivered through Slice.",
   },
   {
     q: "Can I order pickup?",
@@ -323,33 +325,34 @@ export default function ContactPage() {
           {/* Right Column: Map & FAQ */}
           <div className="space-y-8">
             {/* Action Links */}
-            <motion.div 
+            <motion.div
               className="grid grid-cols-2 gap-4"
               variants={staggerContainer}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
             >
-              <motion.a 
-                href={restaurant.doordashUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                variants={fadeUp} 
+              <motion.a
+                href="/menu"
+                variants={fadeUp}
                 className="bg-white p-4 rounded-2xl shadow-sm border border-border/50 flex flex-col items-center justify-center gap-2 hover:-translate-y-1 transition-transform group"
               >
-                <div className="font-semibold text-brand-dark group-hover:text-brand-gold transition-colors">DoorDash</div>
-                <div className="text-xs text-olive">Order Delivery</div>
+                <div className="font-semibold text-brand-dark group-hover:text-brand-gold transition-colors">Order Direct</div>
+                <div className="text-xs text-olive">Pickup</div>
               </motion.a>
-              <motion.a 
-                href={restaurant.uberEatsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                variants={fadeUp} 
-                className="bg-white p-4 rounded-2xl shadow-sm border border-border/50 flex flex-col items-center justify-center gap-2 hover:-translate-y-1 transition-transform group"
-              >
-                <div className="font-semibold text-brand-dark group-hover:text-brand-gold transition-colors">Uber Eats</div>
-                <div className="text-xs text-olive">Order Delivery</div>
-              </motion.a>
+              {integrations.sliceEnabled && (
+                <motion.a
+                  href={restaurant.sliceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent("slice_click", { source: "contact" })}
+                  variants={fadeUp}
+                  className="bg-white p-4 rounded-2xl shadow-sm border border-border/50 flex flex-col items-center justify-center gap-2 hover:-translate-y-1 transition-transform group"
+                >
+                  <div className="font-semibold text-brand-dark group-hover:text-brand-gold transition-colors">Slice</div>
+                  <div className="text-xs text-olive">Order Delivery</div>
+                </motion.a>
+              )}
             </motion.div>
 
             {/* Map Fallback placeholder */}

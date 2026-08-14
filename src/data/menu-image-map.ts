@@ -1,9 +1,10 @@
 // ============================================================
 // Menu Image Map
-// Maps menu item IDs, Clover IDs, slugs, and names to their image paths.
-// Real client photos are used where available.
-// Generated placeholder images are used where no real photo exists.
-// Upload food images to public/menu/ and update this file.
+// Maps menu item IDs, Clover IDs, slugs, and names to photography.
+//
+// All entries point at /photos/*.webp — the optimised real
+// photography set. Lookups are case-insensitive, so keys are
+// written lowercase (slug and/or dish name).
 // ============================================================
 
 export interface ImageMapping {
@@ -11,205 +12,237 @@ export interface ImageMapping {
   gallery: string[];
 }
 
+const P = (slug: string) => `/photos/${slug}.webp`;
+
+/** Build a mapping from a primary photo plus optional extra gallery shots. */
+function shot(primary: string, ...gallery: string[]): ImageMapping {
+  return { primary: P(primary), gallery: [P(primary), ...gallery.map(P)] };
+}
+
 export const MENU_IMAGE_MAP: Record<string, string | ImageMapping> = {
   // ── Grilled Dishes ──────────────────────────────────────────
-  "item-shish-tawook-plate": "/menu/grilled-dishes/shish-tawook-plate.avif",
-  "ITEM_SHISH_TAWOOK_PLATE_ID": "/menu/grilled-dishes/shish-tawook-plate.avif",
-  "shish-tawook-plate": "/menu/grilled-dishes/shish-tawook-plate.avif",
-  "shish tawook plate": "/menu/grilled-dishes/shish-tawook-plate.avif",
+  "item-mix-grill": shot("mix-grill-plate", "mixed-grill-table"),
+  "mix-grill": shot("mix-grill-plate", "mixed-grill-table"),
+  "mix grill": shot("mix-grill-plate", "mixed-grill-table"),
+  "mix grill plate": shot("mix-grill-plate", "mixed-grill-table"),
+  "mixed grill": shot("mix-grill-plate", "mixed-grill-table"),
 
-  "item-mix-grill": {
-    primary: "/menu/grilled-dishes/mix-grill-client.jpeg",
-    gallery: ["/menu/grilled-dishes/mix-grill-client.jpeg", "/menu/grilled-dishes/mixed-platter-client.jpeg"],
-  },
-  "ITEM_MIX_GRILL_ID": {
-    primary: "/menu/grilled-dishes/mix-grill-client.jpeg",
-    gallery: ["/menu/grilled-dishes/mix-grill-client.jpeg", "/menu/grilled-dishes/mixed-platter-client.jpeg"],
-  },
-  "mix-grill": {
-    primary: "/menu/grilled-dishes/mix-grill-client.jpeg",
-    gallery: ["/menu/grilled-dishes/mix-grill-client.jpeg", "/menu/grilled-dishes/mixed-platter-client.jpeg"],
-  },
-  "mix grill": {
-    primary: "/menu/grilled-dishes/mix-grill-client.jpeg",
-    gallery: ["/menu/grilled-dishes/mix-grill-client.jpeg", "/menu/grilled-dishes/mixed-platter-client.jpeg"],
-  },
+  "item-shish-tawook-plate": shot("shish-tawook-plate"),
+  "shish-tawook-plate": shot("shish-tawook-plate"),
+  "shish tawook plate": shot("shish-tawook-plate"),
+  "shish tawook skewers": shot("shish-tawook-skewers", "shish-tawook-plate"),
+  "shish-tawook-skewers": shot("shish-tawook-skewers", "shish-tawook-plate"),
 
-  "item-lamb-cubes": "/menu/grilled-dishes/lamb-cubes.png",
-  "lamb-cubes": "/menu/grilled-dishes/lamb-cubes.png",
-  "lamb cubes": "/menu/grilled-dishes/lamb-cubes.png",
+  "kofta kabab plate": shot("kofta-kabab-plate"),
+  "kofta-kabab-plate": shot("kofta-kabab-plate"),
+  // Real in-restaurant frame of kofta skewers on the board.
+  "kofta kabab skewers": shot("mixed-grill-table", "kofta-kabab-plate"),
+  "kofta-kabab-skewers": shot("mixed-grill-table", "kofta-kabab-plate"),
 
-  // ── Main Dishes ──────────────────────────────────────────────
-  "item-chicken-mandi": "/menu/main-dishes/main-dishes-cover.png",
-  "chicken-mandi": "/menu/main-dishes/main-dishes-cover.png",
+  "adana kabob plate": shot("grill-board", "beef-kebab-skewers"),
+  "adana-kabob-plate": shot("grill-board", "beef-kebab-skewers"),
+  "adana kabab skewers": shot("beef-kebab-skewers"),
+  "adana-kabab-skewers": shot("beef-kebab-skewers"),
+  "beef kebab skewers": shot("beef-kebab-skewers"),
 
-  "item-chicken-shawarma-plate": "/menu/main-dishes/chicken-shawarma-plate.png",
-  "chicken-shawarma-plate": "/menu/main-dishes/chicken-shawarma-plate.png",
+  "lamb cubes skewers": shot("lamb-cubes-skewers", "lamb-cubes"),
+  "lamb-cubes-skewers": shot("lamb-cubes-skewers", "lamb-cubes"),
+  "lamb cubes": shot("lamb-cubes"),
 
-  "item-lamb-mandi": "/menu/main-dishes/lamb-mandi.png",
-  "ITEM_LAMB_MANDI_ID": "/menu/main-dishes/lamb-mandi.png",
-  "lamb-mandi": "/menu/main-dishes/lamb-mandi.png",
-  "lamb over rice (mandi)": "/menu/main-dishes/lamb-mandi.png",
-  "lamb over rice mandi": "/menu/main-dishes/lamb-mandi.png",
+  "arayes plate 2 pcs": shot("mixed-grill-table"),
+  "arayes-plate-2-pcs": shot("mixed-grill-table"),
+  "item-stuffed-grilled-pita": shot("mixed-grill-table"),
 
-  // ── Specialties ─────────────────────────────────────────────
-  "item-arabic-shawarma-plate": "/menu/specialties/arabic-shawarma-plate.png",
-  "ITEM_ARABIC_SHAWARMA_PLATE_ID": "/menu/specialties/arabic-shawarma-plate.png",
-  "arabic-shawarma-plate": "/menu/specialties/arabic-shawarma-plate.png",
-  "arabic-shawarma-platter": "/menu/specialties/arabic-shawarma-plate.png",
-  "arabic shawarma platter": "/menu/specialties/arabic-shawarma-plate.png",
+  // ── Main Dishes ─────────────────────────────────────────────
+  "item-chicken-shawarma-plate": shot("chicken-shawarma-plate"),
+  "chicken-shawarma-plate": shot("chicken-shawarma-plate"),
+  "chicken shawarma plate": shot("chicken-shawarma-plate"),
+  "arabic chicken shawarma": shot("chicken-shawarma-plate"),
 
-  "item-stuffed-grilled-pita": "/menu/specialties/stuffed-grilled-pita.png",
-  "stuffed-grilled-pita": "/menu/specialties/stuffed-grilled-pita.png",
+  "item-lamb-mandi": shot("mandi-lamb"),
+  "mandi lamb": shot("mandi-lamb"),
+  "mandi-lamb": shot("mandi-lamb"),
+  // Chicken mandi gets the chicken-over-rice frame rather than the lamb one.
+  "mandi chicken": shot("kabsa-chicken", "mandi-lamb"),
+  "mandi-chicken": shot("kabsa-chicken", "mandi-lamb"),
 
-  // ── Appetizers ──────────────────────────────────────────────
-  "item-hummus": "/menu/appetizers/hummus-client.jpeg",
-  "ITEM_HUMMUS_ID": "/menu/appetizers/hummus-client.jpeg",
-  "hummus": "/menu/appetizers/hummus-client.jpeg",
+  "kabsa lamb": shot("kabsa-lamb"),
+  "kabsa-lamb": shot("kabsa-lamb"),
+  "kabsa chicken": shot("kabsa-chicken"),
+  "kabsa-chicken": shot("kabsa-chicken"),
 
-  "item-grape-leaves": "/menu/appetizers/grape-leaves.avif",
-  "ITEM_GRAPE_LEAVES_ID": "/menu/appetizers/grape-leaves.avif",
-  "grape-leaves": "/menu/appetizers/grape-leaves.avif",
-  "grape leaves  8 pieces": "/menu/appetizers/grape-leaves.avif",
-  "grape leaves - 8 pieces": "/menu/appetizers/grape-leaves.avif",
+  "falafel plate with rice": shot("falafel-plate-rice", "falafel-plate"),
+  "falafel-plate-with-rice": shot("falafel-plate-rice", "falafel-plate"),
 
-  "item-fried-kubbeh": {
-    primary: "/menu/appetizers/fried-kubbeh-alt.png",
-    gallery: ["/menu/appetizers/fried-kubbeh-alt.png", "/menu/appetizers/fried-kubbeh.png"],
-  },
-  "ITEM_FRIED_KUBBEH_ID": {
-    primary: "/menu/appetizers/fried-kubbeh-alt.png",
-    gallery: ["/menu/appetizers/fried-kubbeh-alt.png", "/menu/appetizers/fried-kubbeh.png"],
-  },
-  "fried-kubbeh": {
-    primary: "/menu/appetizers/fried-kubbeh-alt.png",
-    gallery: ["/menu/appetizers/fried-kubbeh-alt.png", "/menu/appetizers/fried-kubbeh.png"],
-  },
-  "fried kubbeh  3 pieces": {
-    primary: "/menu/appetizers/fried-kubbeh-alt.png",
-    gallery: ["/menu/appetizers/fried-kubbeh-alt.png", "/menu/appetizers/fried-kubbeh.png"],
-  },
-  "fried kubbeh - 3 pieces": {
-    primary: "/menu/appetizers/fried-kubbeh-alt.png",
-    gallery: ["/menu/appetizers/fried-kubbeh-alt.png", "/menu/appetizers/fried-kubbeh.png"],
-  },
+  "wings 8pc": shot("wings-8pc"),
+  "wings-8pc": shot("wings-8pc"),
+  rice: shot("mandi-lamb"),
 
-  "item-baba-ghanoush": "/menu/appetizers/baba-ghanoush.png",
-  "baba-ghanoush": "/menu/appetizers/baba-ghanoush.png",
-
-  "item-cheese-rolls": "/menu/appetizers/cheese-rolls-client.jpeg",
-  "ITEM_CHEESE_ROLLS_ID": "/menu/appetizers/cheese-rolls-client.jpeg",
-  "cheese-rolls": "/menu/appetizers/cheese-rolls-client.jpeg",
-  "cheese rolls": "/menu/appetizers/cheese-rolls-client.jpeg",
-
-  // ── Salads ──────────────────────────────────────────────────
-  "item-greek-salad": "/menu/salads/greek-salad.png",
-  "greek-salad": "/menu/salads/greek-salad.png",
-
-  "item-fattoush-salad": "/menu/salads/fattoush-salad.png",
-  "ITEM_FATTOUSH_SALAD_ID": "/menu/salads/fattoush-salad.png",
-  "fattoush-salad": "/menu/salads/fattoush-salad.png",
-  "fattoush salad": "/menu/salads/fattoush-salad.png",
+  // ── Family Platters ─────────────────────────────────────────
+  "family plate": shot("family-plate"),
+  "family-plate": shot("family-plate"),
+  "family plate medium 2-3 people": shot("family-plate"),
+  "family-plate-medium-2-3-people": shot("family-plate"),
+  "family plate (large) 4-6 people": shot("family-plate"),
+  "family-plate-large-4-6-people": shot("family-plate"),
+  "family plate xl 6-10 people": shot("family-plate"),
+  "family-plate-xl-6-10-people": shot("family-plate"),
 
   // ── Sandwiches ──────────────────────────────────────────────
-  "item-chicken-shawarma-sandwich": "/menu/sandwiches/chicken-shawarma-sandwich.png",
-  "71T948RMM7VC8": "/menu/sandwiches/chicken-shawarma-sandwich.png",
-  "chicken-shawarma-sandwich": "/menu/sandwiches/chicken-shawarma-sandwich.png",
-  "chicken-shawarma-wrap": "/menu/sandwiches/chicken-shawarma-sandwich.png",
-  "chicken shawarma wrap": "/menu/sandwiches/chicken-shawarma-sandwich.png",
+  "item-chicken-shawarma-sandwich": shot("shawarma-sandwich"),
+  "chicken-shawarma-sandwich": shot("shawarma-sandwich"),
+  "chicken shawarma wrap": shot("shawarma-sandwich"),
+  "shawarma sandwich": shot("shawarma-sandwich"),
 
-  "item-beef-kabob-sandwich": "/menu/sandwiches/beef-kofta-sandwich.png",
-  "YGPAR9058VGW2": "/menu/sandwiches/beef-kofta-sandwich.png",
-  "beef-kabob-sandwich": "/menu/sandwiches/beef-kofta-sandwich.png",
-  "beef-kabab-sandwich": "/menu/sandwiches/beef-kofta-sandwich.png",
-  "beef kabab sandwich": "/menu/sandwiches/beef-kofta-sandwich.png",
-  "beef kabob sandwich": "/menu/sandwiches/beef-kofta-sandwich.png",
+  "item-falafel-sandwich": shot("falafel-sandwich"),
+  "falafel-sandwich": shot("falafel-sandwich"),
+  "falafel sandwich": shot("falafel-sandwich"),
 
-  "item-shish-tawook-wrap": "/menu/sandwiches/shish-tawook-sandwich.png",
-  "T9DVYZY8V7396": "/menu/sandwiches/shish-tawook-sandwich.png",
-  "shish-tawook-wrap": "/menu/sandwiches/shish-tawook-sandwich.png",
-  "shish tawook wrap": "/menu/sandwiches/shish-tawook-sandwich.png",
+  "item-shish-tawook-wrap": shot("shish-tawook-skewers"),
+  "shish-tawook-wrap": shot("shish-tawook-skewers"),
+  "shish tawook sandwich": shot("shish-tawook-skewers"),
+  "shish-tawook-sandwich": shot("shish-tawook-skewers"),
+  "item-beef-kabob-sandwich": shot("beef-kebab-skewers"),
+  "beef-kabob-sandwich": shot("beef-kebab-skewers"),
+  "item-adana-kebab-sandwich": shot("beef-kebab-skewers"),
+  "adana-kebab-sandwich": shot("beef-kebab-skewers"),
+  "adana kabob sandwich": shot("beef-kebab-skewers"),
+  "adana-kabob-sandwich": shot("beef-kebab-skewers"),
+  "kofta kabab sandwich": shot("kofta-kabab-plate"),
+  "kofta-kabab-sandwich": shot("kofta-kabab-plate"),
 
-  "item-falafel-sandwich": "/menu/sandwiches/falafel-sandwich.png",
-  "X7J8DGH1S2SWT": "/menu/sandwiches/falafel-sandwich.png",
-  "falafel-sandwich": "/menu/sandwiches/falafel-sandwich.png",
-  "falafel-wrap": "/menu/sandwiches/falafel-sandwich.png",
-  "falafel sandwich": "/menu/sandwiches/falafel-sandwich.png",
-  "falafel wrap": "/menu/sandwiches/falafel-sandwich.png",
+  // ── Appetizers ──────────────────────────────────────────────
+  "item-hummus": shot("hummus", "hummus-client"),
+  hummus: shot("hummus", "hummus-client"),
 
-  "item-adana-kebab-sandwich": "/menu/sandwiches/adana-kabob-sandwich.png",
-  "6B6EXEM4TA9SA": "/menu/sandwiches/adana-kabob-sandwich.png",
-  "adana-kebab-sandwich": "/menu/sandwiches/adana-kabob-sandwich.png",
-  "adana-kabob-sandwich": "/menu/sandwiches/adana-kabob-sandwich.png",
-  "adana kebab sandwich": "/menu/sandwiches/adana-kabob-sandwich.png",
+  "item-baba-ghanoush": shot("baba-ghanoush"),
+  "baba-ghanoush": shot("baba-ghanoush"),
+  "baba ghanoush": shot("baba-ghanoush"),
+  "baba ghanouj": shot("baba-ghanoush"),
 
-  // ── Kids Menu ────────────────────────────────────────────────
-  "item-chicken-nuggets": "/menu/kids-menu/chicken-nuggets.png",
-  "E5QRFFKK6B0WP": "/menu/kids-menu/chicken-nuggets.png",
-  "chicken-nuggets": "/menu/kids-menu/chicken-nuggets.png",
-  "chicken-nuggets-6-pcs": "/menu/kids-menu/chicken-nuggets.png",
-  "chicken nuggets 6 pcs": "/menu/kids-menu/chicken-nuggets.png",
-  "chicken nuggets (6) pcs": "/menu/kids-menu/chicken-nuggets.png",
+  "item-fried-kubbeh": shot("fried-kibbeh"),
+  "fried-kubbeh": shot("fried-kibbeh"),
+  "kubbeh 3pcs": shot("fried-kibbeh"),
+  "kubbeh-3pcs": shot("fried-kibbeh"),
 
-  "item-chicken-tenders": "/menu/kids-menu/chicken-tenders.png",
-  "8JTN1BY4469JG": "/menu/kids-menu/chicken-tenders.png",
-  "chicken-tenders": "/menu/kids-menu/chicken-tenders.png",
-  "chicken-tenders-3-pcs": "/menu/kids-menu/chicken-tenders.png",
-  "chicken tenders 3 pcs": "/menu/kids-menu/chicken-tenders.png",
-  "chicken tenders (3) pcs": "/menu/kids-menu/chicken-tenders.png",
+  "item-cheese-rolls": shot("cheese-rolls", "cheese-rolls-client"),
+  "cheese-rolls": shot("cheese-rolls", "cheese-rolls-client"),
+  "cheese rolls 4pcs": shot("cheese-rolls", "cheese-rolls-client"),
+  "cheese-rolls-4pcs": shot("cheese-rolls", "cheese-rolls-client"),
 
-  // ── Desserts ─────────────────────────────────────────────────
-  "item-chocolate-cake": "/menu/desserts/chocolate-cake.png",
-  "ITEM_CHOCOLATE_CAKE_ID": "/menu/desserts/chocolate-cake.png",
-  "chocolate-cake": "/menu/desserts/chocolate-cake.png",
-  "chocolate cake": "/menu/desserts/chocolate-cake.png",
+  "item-grape-leaves": shot("grape-leaves"),
+  "grape-leaves": shot("grape-leaves"),
+  "grape leaves 8 pcs": shot("grape-leaves"),
+  "grape-leaves-8-pcs": shot("grape-leaves"),
 
-  "item-baklawa": {
-    primary: "/menu/desserts/baklawa-client.jpeg",
-    gallery: ["/menu/desserts/baklawa-client.jpeg", "/menu/desserts/Desserts.png"],
-  },
-  "ITEM_BAKLAWA_ID": {
-    primary: "/menu/desserts/baklawa-client.jpeg",
-    gallery: ["/menu/desserts/baklawa-client.jpeg", "/menu/desserts/Desserts.png"],
-  },
-  "baklawa": {
-    primary: "/menu/desserts/baklawa-client.jpeg",
-    gallery: ["/menu/desserts/baklawa-client.jpeg", "/menu/desserts/Desserts.png"],
-  },
-  "baklawa  4 pieces": {
-    primary: "/menu/desserts/baklawa-client.jpeg",
-    gallery: ["/menu/desserts/baklawa-client.jpeg", "/menu/desserts/Desserts.png"],
-  },
-  "baklawa - 4 pieces": {
-    primary: "/menu/desserts/baklawa-client.jpeg",
-    gallery: ["/menu/desserts/baklawa-client.jpeg", "/menu/desserts/Desserts.png"],
-  },
+  "falafel 8pc": shot("falafel-8pc"),
+  "falafel-8pc": shot("falafel-8pc"),
+  labneh: shot("labneh"),
+  "french fries": shot("french-fries"),
+  "french-fries": shot("french-fries"),
+
+  // ── Salads ──────────────────────────────────────────────────
+  "item-fattoush": shot("fattoush-salad"),
+  fattoush: shot("fattoush-salad"),
+  "fattoush-salad": shot("fattoush-salad"),
+  "item-greek-salad": shot("greek-salad"),
+  "greek-salad": shot("greek-salad"),
+  "greek salad": shot("greek-salad"),
+  "caesar salad": shot("caesar-salad"),
+  "caesar-salad": shot("caesar-salad"),
+  "turkish salad": shot("greek-salad"),
+  "turkish-salad": shot("greek-salad"),
+  tabouleh: shot("fattoush-salad"),
+
+  // ── Desserts ────────────────────────────────────────────────
+  "item-baklawa": shot("baklava", "baklawa-client"),
+  baklawa: shot("baklava", "baklawa-client"),
+  "baklawa 4pcs": shot("baklava", "baklawa-client"),
+  "baklawa-4pcs": shot("baklava", "baklawa-client"),
+  baklava: shot("baklava", "baklawa-client"),
+
+  "booza (arabic ice cream)": shot("booza"),
+  "booza-arabic-ice-cream": shot("booza"),
+  booza: shot("booza"),
+  "cheese cake": shot("cheese-cake"),
+  "cheese-cake": shot("cheese-cake"),
+  "carrot cake": shot("carrot-cake"),
+  "carrot-cake": shot("carrot-cake"),
+  "chocolate cake": shot("chocolate-cake"),
+  "chocolate-cake": shot("chocolate-cake"),
+
+  // ── Kids Menu ───────────────────────────────────────────────
+  "item-chicken-nuggets": shot("chicken-nuggets", "french-fries"),
+  "chicken-nuggets": shot("chicken-nuggets", "french-fries"),
+  "chicken nuggets (6) pcs": shot("chicken-nuggets", "french-fries"),
+  "item-chicken-tenders": shot("chicken-nuggets", "french-fries"),
+  "chicken-tenders": shot("chicken-nuggets", "french-fries"),
+  "tender chicken 3pc": shot("chicken-tenders", "french-fries"),
+  "tender-chicken-3pc": shot("chicken-tenders", "french-fries"),
+  "nuggets chicken 6pc": shot("chicken-nuggets", "french-fries"),
+  "nuggets-chicken-6pc": shot("chicken-nuggets", "french-fries"),
 
   // ── Drinks ──────────────────────────────────────────────────
-  "item-turkish-coffee": "/menu/drinks/turkish-coffee.png",
-  "ITEM_TURKISH_COFFEE_ID": "/menu/drinks/turkish-coffee.png",
-  "turkish-coffee": "/menu/drinks/turkish-coffee.png",
-  "turkish coffee": "/menu/drinks/turkish-coffee.png",
+  "fresh lemonade": shot("fresh-juices"),
+  "fresh-lemonade": shot("fresh-juices"),
+  "lemon-mint": shot("lemon-mint"),
+  "lemon mint": shot("lemon-mint"),
+  "virgin mojito": shot("virgin-mojito"),
+  "virgin-mojito": shot("virgin-mojito"),
 
-  "item-soft-drinks": "/menu/drinks/soft-drinks.png",
-  "ITEM_SOFT_DRINKS_ID": "/menu/drinks/soft-drinks.png",
-  "soft-drinks": "/menu/drinks/soft-drinks.png",
-  "soft-drink": "/menu/drinks/soft-drinks.png",
-  "soft drink": "/menu/drinks/soft-drinks.png",
+  "mango smoothie": shot("mango-smoothie", "fresh-juices"),
+  "mango-smoothie": shot("mango-smoothie", "fresh-juices"),
+  "strawberry smoothie": shot("strawberry-smoothie", "fresh-juices"),
+  "strawberry-smoothie": shot("strawberry-smoothie", "fresh-juices"),
+  "banana strawberry": shot("banana-strawberry", "fresh-juices"),
+  "banana-strawberry": shot("banana-strawberry", "fresh-juices"),
+  "pineapple juice": shot("pineapple-juice", "fresh-juices"),
+  "pineapple-juice": shot("pineapple-juice", "fresh-juices"),
 
-  "item-lemon-mint": "/menu/drinks/lemon-mint.png",
-  "lemon-mint": "/menu/drinks/lemon-mint.png",
-  "lemon mint": "/menu/drinks/lemon-mint.png",
+  "oreo milkshake": shot("oreo-milkshake"),
+  "oreo-milkshake": shot("oreo-milkshake"),
+  "nuttella milkshake": shot("nutella-milkshake"),
+  "nuttella-milkshake": shot("nutella-milkshake"),
+  "strawberry milkshake": shot("strawberry-smoothie"),
+  "strawberry-milkshake": shot("strawberry-smoothie"),
+
+  "ice tea": shot("ice-tea"),
+  "ice-tea": shot("ice-tea"),
+  cocacola: shot("coca-cola"),
+  "coca-cola": shot("coca-cola"),
+  "coke zero": shot("coca-cola"),
+  "coke-zero": shot("coca-cola"),
+  "diet cocacola": shot("diet-coke"),
+  "diet-cocacola": shot("diet-coke"),
+  sprite: shot("sprite"),
+  fanta: shot("fanta"),
+  redbull: shot("redbull"),
+  "dr pepper": shot("dr-pepper"),
+  "dr-pepper": shot("dr-pepper"),
+  vimto: shot("pineapple-juice"),
+  laziza: shot("laziza"),
+  "yougrt drink": shot("labneh"),
+  "yougrt-drink": shot("labneh"),
+  water: shot("water"),
+  "sparkling water": shot("water"),
+  "sparkling-water": shot("water"),
+  // Hot drinks get a hot-drink frame; iced tea keeps the cold one.
+  tea: shot("turkish-coffee"),
+  "american coffee": shot("turkish-coffee"),
+  "american-coffee": shot("turkish-coffee"),
+  "item-turkish-coffee": shot("turkish-coffee"),
+  "turkish coffee": shot("turkish-coffee"),
+  "turkish-coffee": shot("turkish-coffee"),
 };
 
 /** Returns mapping or null if not found to allow fallbacks */
 export function getMenuItemMapping(key: string): ImageMapping | null {
   // Normalize key by lowercasing to handle casing mismatches
   const normalizedKey = key.toLowerCase();
-  
+
   // Try exact match, normalized match, or fallback
   const map = MENU_IMAGE_MAP[key] || MENU_IMAGE_MAP[normalizedKey];
-  
+
   if (!map) {
     return null;
   }
@@ -223,3 +256,29 @@ export function getMenuItemImage(slug: string): string {
   const mapping = getMenuItemMapping(slug);
   return mapping ? mapping.primary : "";
 }
+
+/** Editorial / storytelling photography used outside the menu grid. */
+export const BRAND_PHOTOS = {
+  hero: "/images/hero/hero-4k.webp",
+  signature: [P("mix-grill-plate"), P("mandi-lamb"), P("chicken-shawarma-plate")],
+  heritage: P("family-plate"),
+  ingredients: P("hummus"),
+  recipes: P("fried-kibbeh"),
+  finale: P("booza"),
+  placeholder: P("placeholder"),
+} as const;
+
+export const CATEGORY_PHOTOS: Record<string, string> = {
+  appetizers: P("hummus"),
+  salads: P("fattoush-salad"),
+  "main-dishes": P("mandi-lamb"),
+  "grilled-dishes": P("shish-tawook-plate"),
+  specialties: P("mix-grill-plate"),
+  "family-platters": P("family-plate"),
+  sandwiches: P("shawarma-sandwich"),
+  desserts: P("booza"),
+  drinks: P("fresh-juices"),
+  "soft-drinks": P("fresh-juices"),
+  "hot-drinks": P("ice-tea"),
+  "kids-menu": P("chicken-nuggets"),
+};

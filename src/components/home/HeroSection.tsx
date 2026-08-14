@@ -3,127 +3,113 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ChevronRight, MapPin, UtensilsCrossed, Store, ShoppingBag, Truck, CheckCircle2 } from "lucide-react";
-import { restaurant } from "@/config/restaurant";
+import { BRAND_PHOTOS } from "@/data/menu-image-map";
 
-import { staggerContainer, fadeUp, zoomIn } from "@/lib/motion";
+/* ------------------------------------------------------------------ */
+/* Cinematic hero — full-bleed 4K photography, deep olive-black wash,  */
+/* editorial type. Deliberately no icon pills or badge clutter.        */
+/* ------------------------------------------------------------------ */
 
 export function HeroSection() {
   return (
     <section
-      className="relative min-h-[70vh] flex items-center justify-center overflow-hidden"
-      aria-label="Hero"
+      className="relative min-h-[88vh] lg:min-h-screen flex items-end overflow-hidden bg-brand-dark"
+      aria-label="Old Damascus"
     >
-      {/* Background Image */}
-      <motion.div 
+      {/* Photography — slow ken-burns settle */}
+      <motion.div
         className="absolute inset-0"
-        variants={zoomIn}
-        initial="hidden"
-        animate="visible"
+        initial={{ scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
       >
         <Image
-          src="/images/hero/hero-4k.webp"
-          alt="Old Damascus premium restaurant ambiance and food spread"
+          src={BRAND_PHOTOS.hero}
+          alt="A Damascene table set with mezze, mandi and charcoal-grilled skewers"
           fill
           className="object-cover"
-          priority={true}
+          priority
           fetchPriority="high"
           sizes="100vw"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
+          quality={90}
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-hero-gradient" />
       </motion.div>
+
+      {/* Tonal wash — dark at the base so type always reads */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-brand-dark/25"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-r from-brand-dark/80 via-transparent to-transparent"
+      />
 
       {/* Content */}
-      <motion.div 
-        className="relative z-10 container-site text-center text-white py-24"
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.h1 
-          variants={fadeUp}
-          className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6 text-white drop-shadow-lg max-w-5xl mx-auto"
-        >
-          Authentic Mediterranean Flavor,{" "}
-          <span className="text-brand-gold">Made Fresh</span> in Richardson
-        </motion.h1>
-
-        <motion.p 
-          variants={fadeUp}
-          className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed mb-10"
-        >
-          Discover charcoal-grilled meats, shawarma, mandi, fresh mezze, family
-          platters, desserts, and traditional drinks inspired by the heart of
-          Damascus.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div 
-          variants={fadeUp}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
-        >
-          <Link
-            href="/menu"
-            className="btn-outline-white btn-lg group"
+      <div className="relative z-10 container-site pb-20 sm:pb-24 lg:pb-28 pt-40">
+        <div className="max-w-3xl">
+          <motion.span
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-gold"
           >
-            <UtensilsCrossed className="w-5 h-5" />
-            View Our Menu
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
+            <span className="w-10 h-px bg-brand-gold/60" aria-hidden="true" />
+            Richardson, Texas
+          </motion.span>
 
-          <a
-            href="/order"
-            className="btn-gold btn-lg shadow-xl shadow-brand-gold/20"
+          <motion.h1
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="font-heading text-white font-semibold tracking-tight mt-7
+                       text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] leading-[1.02]"
           >
-            Order Online
-          </a>
+            Authentic Damascus
+            <span className="block italic font-normal text-brand-gold">
+              Flavors
+            </span>
+          </motion.h1>
 
-          <a
-            href={restaurant.address.directionsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-ghost btn-lg text-white hover:text-brand-lime hover:bg-white/10 border-0"
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.85, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="text-lg sm:text-xl text-white/70 leading-relaxed mt-8 max-w-xl font-light"
           >
-            <MapPin className="w-5 h-5 text-brand-gold" />
-            Get Directions
-          </a>
-        </motion.div>
+            Tradition crafted into every dish — charcoal-grilled over open
+            flame, mezze made each morning, and rice slow-spiced the way
+            Damascus has always done it.
+          </motion.p>
 
-        {/* Info pills */}
-        <motion.div 
-          variants={fadeUp}
-          className="flex flex-wrap items-center justify-center gap-3"
-        >
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-sm font-medium text-white/90 border border-white/20 shadow-sm">
-            <Store className="w-4 h-4 text-brand-gold" /> Dine-In
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-sm font-medium text-white/90 border border-white/20 shadow-sm">
-            <ShoppingBag className="w-4 h-4 text-brand-gold" /> Pickup
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-sm font-medium text-white/90 border border-white/20 shadow-sm">
-            <Truck className="w-4 h-4 text-brand-gold" /> Delivery
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-sm font-medium text-white/90 border border-white/20 shadow-sm">
-            <CheckCircle2 className="w-4 h-4 text-brand-gold" /> Halal
-          </span>
-        </motion.div>
-      </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.05, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col sm:flex-row sm:items-center gap-4 mt-12"
+          >
+            <Link
+              href="/menu"
+              className="group inline-flex items-center justify-center gap-3 rounded-xl border-2 border-brand-gold bg-brand-gold
+                         px-9 py-4 text-xs font-bold uppercase tracking-[0.18em] text-brand-dark
+                         transition-all duration-300 hover:bg-transparent hover:text-brand-gold
+                         focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+            >
+              Explore Menu
+            </Link>
 
-      {/* Scroll indicator */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"
-      >
-        <div className="w-6 h-10 rounded-full border-2 border-white/40 flex items-start justify-center pt-1">
-          <div className="w-1.5 h-3 rounded-full bg-white/60 animate-pulse" />
+            <Link
+              href="/order"
+              className="group inline-flex items-center justify-center gap-3 rounded-xl border-2 border-white/35 bg-white/5 backdrop-blur-sm
+                         px-9 py-4 text-xs font-bold uppercase tracking-[0.18em] text-white
+                         transition-all duration-300 hover:bg-white hover:text-brand-dark hover:border-white
+                         focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+            >
+              Order Online
+            </Link>
+          </motion.div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

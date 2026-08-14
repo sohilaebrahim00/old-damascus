@@ -24,6 +24,10 @@ export interface CloverItem {
   itemStock?: CloverItemStock;
   hidden?: boolean;
   available?: boolean;
+  /** Clover marks deleted inventory rather than removing it. */
+  deleted?: boolean;
+  /** false for register bookkeeping entries such as gift cards. */
+  isRevenue?: boolean;
   imageUrl?: string;
   description?: string;
 }

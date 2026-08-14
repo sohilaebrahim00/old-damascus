@@ -36,11 +36,9 @@ export const restaurant = {
     { days: "Friday – Saturday", open: "11:00 AM", close: "10:00 PM" },
   ],
 
-  // External ordering
-  doordashUrl:
-    "https://www.doordash.com/store/25215659?utm_source=mx_share&aw=no6SvdnHKTHna7Dt",
-  uberEatsUrl:
-    "https://www.ubereats.com/store-browse-uuid/808474cc-095e-4fa4-845b-6dec8434d217?diningMode=DELIVERY",
+  // External ordering — Slice is the only delivery partner.
+  sliceUrl:
+    "https://slicelife.com/restaurants/tx/richardson/75080/old-damascus/menu",
 
   // Reviews
   googleReviewUrl: "https://g.page/r/CSL54Z45HjXmEAE/review",
@@ -64,7 +62,7 @@ export const restaurant = {
     titleTemplate: "%s | Old Damascus Mediterranean Restaurant",
     defaultTitle: "Old Damascus Mediterranean Restaurant",
     defaultDescription:
-      "Discover authentic Mediterranean cuisine at Old Damascus in Richardson, Texas. Browse our menu and order directly, through DoorDash, or through Uber Eats.",
+      "Discover authentic Mediterranean cuisine at Old Damascus in Richardson, Texas. Browse our menu, order direct for pickup, or get delivery through Slice.",
     keywords: [
       "Mediterranean restaurant Richardson TX",
       "Mediterranean food Richardson",

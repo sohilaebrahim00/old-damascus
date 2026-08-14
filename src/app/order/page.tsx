@@ -4,7 +4,7 @@ import { OrderingOptions } from "@/components/home/OrderingOptions";
 export const metadata: Metadata = {
   title: "Order Online",
   description:
-    "Order online from Old Damascus Mediterranean Restaurant. Choose between direct pickup/delivery, DoorDash, or Uber Eats.",
+    "Order online from Old Damascus Mediterranean Restaurant. Order direct for pickup, or get delivery through Slice.",
   alternates: { canonical: "/order" },
 };
 

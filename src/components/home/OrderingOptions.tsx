@@ -1,224 +1,229 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
-  ExternalLink,
-  Store,
-  UtensilsCrossed,
-  Truck,
-  MapPin,
+  Bike,
+  ShieldCheck,
   Clock,
-  CheckCircle2,
+  Navigation,
+  Zap,
+  ArrowRight,
+  ExternalLink,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
+import { BrandPattern } from "@/components/brand/BrandPattern";
 
 /* ------------------------------------------------------------------ */
-/* Clover fulfillment type IDs — DO NOT CHANGE without Clover update  */
+/* Fulfillment options                                                 */
+/* Direct pickup runs through the existing menu → cart → Clover        */
+/* checkout flow. Delivery is handled by Slice (external link only).   */
 /* ------------------------------------------------------------------ */
-const CLOVER_PICKUP_ORDER_TYPE = "6F4R7QDTMDM3R";
-const CLOVER_DELIVERY_ORDER_TYPE = "BSJ107MZC4GMG";
 
-const isLiveCheckout =
-  process.env.NEXT_PUBLIC_ENABLE_LIVE_CHECKOUT === "true";
+interface Benefit {
+  icon: LucideIcon;
+  label: string;
+}
 
-type FulfillmentType = "pickup" | "delivery";
+const DIRECT_BENEFITS: Benefit[] = [
+  { icon: ShieldCheck, label: "Secure payment with Clover" },
+  { icon: Clock, label: "Ready when you arrive" },
+];
+
+const SLICE_BENEFITS: Benefit[] = [
+  { icon: Navigation, label: "Live order tracking" },
+  { icon: ShieldCheck, label: "Secure payment" },
+  { icon: Zap, label: "Fast & reliable" },
+];
+
+function BenefitList({
+  benefits,
+  tone,
+}: {
+  benefits: Benefit[];
+  tone: "dark" | "light";
+}) {
+  return (
+    <ul className="mt-8 space-y-4">
+      {benefits.map(({ icon: Icon, label }) => (
+        <li
+          key={label}
+          className={cn(
+            "flex items-center gap-3.5 text-sm",
+            tone === "dark" ? "text-white/75" : "text-olive"
+          )}
+        >
+          <Icon
+            className="w-[18px] h-[18px] text-brand-gold flex-shrink-0"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+          {label}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function OrderingOptions() {
-  const [fulfillment, setFulfillment] = useState<FulfillmentType>("pickup");
-
-  const selectedOrderType =
-    fulfillment === "pickup"
-      ? CLOVER_PICKUP_ORDER_TYPE
-      : CLOVER_DELIVERY_ORDER_TYPE;
+  const sliceEnabled = integrations.sliceEnabled;
 
   return (
     <section
-      className="py-14 sm:py-16 bg-cream-warm"
+      className="relative overflow-hidden bg-cream-warm py-20 sm:py-28"
       aria-labelledby="ordering-heading"
     >
-      <div className="container-site">
-        {/* Section Header */}
-        <div className="text-center mb-10">
-          <span className="inline-block text-brand-dark text-sm font-bold uppercase tracking-widest mb-3">
-            Fulfillment Options
+      <BrandPattern className="text-brand-olive" scale={96} opacity={0.045} />
+      <div className="relative z-10 container-site">
+        {/* ---- Section Header ---- */}
+        <div className="text-center max-w-2xl mx-auto mb-14 sm:mb-16">
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-gold">
+            Fulfillment
           </span>
           <h2
             id="ordering-heading"
-            className="font-heading text-3xl sm:text-4xl font-semibold text-olive-dark mt-1"
+            className="font-heading text-4xl sm:text-5xl font-semibold text-olive-dark mt-5 tracking-tight"
           >
             How Would You Like to Order?
           </h2>
-          <p className="text-base sm:text-lg text-olive leading-relaxed mt-3 max-w-xl mx-auto">
-            Order directly from us for the best experience, or choose your
-            preferred delivery app.
+          <span
+            className="block w-12 h-px bg-brand-gold mx-auto mt-7"
+            aria-hidden="true"
+          />
+          <p className="text-base sm:text-lg text-olive leading-relaxed mt-7">
+            Collect your order fresh from our kitchen, or have it delivered
+            through our preferred partner.
           </p>
         </div>
 
-        {/* ---- Ordering Cards Grid ---- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
-          {/* Card A: Order Direct */}
-          <div className="bg-white rounded-2xl p-7 flex flex-col gap-5 relative border border-brand-dark shadow-xl ring-1 ring-brand-dark/10 md:-translate-y-2">
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-brand-dark text-white text-xs font-bold px-4 py-1.5 rounded-full shadow">
-              Recommended
-            </div>
+        {/* ---- Fulfillment Cards ---- */}
+        <div
+          className={cn(
+            "grid grid-cols-1 gap-6 lg:gap-8 items-stretch mx-auto",
+            sliceEnabled ? "md:grid-cols-2 max-w-5xl" : "max-w-xl"
+          )}
+        >
+          {/* ---- Card A — Order Direct (Pickup) ---- */}
+          <div className="relative flex flex-col h-full rounded-3xl bg-brand-dark text-white p-8 sm:p-10 lg:p-12 shadow-card-hover ring-1 ring-brand-gold/25 overflow-hidden">
+            {/* Soft gold light */}
+            <div
+              className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full bg-brand-gold/10 blur-3xl"
+              aria-hidden="true"
+            />
 
-            <div className="flex flex-col items-center text-center">
-              <div className="p-4 w-16 h-16 rounded-2xl bg-brand-dark/10 flex items-center justify-center mb-4">
-                <Store className="w-8 h-8 text-brand-dark" />
+            <div className="relative z-10 flex flex-col h-full">
+              <span className="self-start px-3.5 py-1.5 rounded-full border border-brand-gold/40 text-[10px] font-semibold uppercase tracking-[0.25em] text-brand-gold">
+                Recommended
+              </span>
+
+              <div className="w-16 h-16 rounded-2xl border border-brand-gold/25 bg-brand-gold/10 flex items-center justify-center mt-9">
+                <ShoppingBag
+                  className="w-7 h-7 text-brand-gold"
+                  strokeWidth={1.25}
+                  aria-hidden="true"
+                />
               </div>
-              <h3 className="font-heading text-xl font-bold text-olive-dark mb-0.5">
+
+              <h3 className="font-heading text-3xl sm:text-4xl font-semibold tracking-tight mt-8">
                 Order Direct
               </h3>
-              <span className="text-xs font-bold text-olive uppercase tracking-wider mb-3">
-                Pickup &amp; Delivery
-              </span>
-              <p className="text-sm text-olive leading-relaxed">
-                Order directly from Old Damascus for the best experience and
-                prices. Support local!
-              </p>
-            </div>
-
-            {/* Fulfillment Selector */}
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              <button
-                type="button"
-                onClick={() => setFulfillment("pickup")}
-                className={cn(
-                  "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200 text-sm font-semibold cursor-pointer",
-                  fulfillment === "pickup"
-                    ? "border-brand-dark bg-brand-dark/5 text-brand-dark shadow-sm"
-                    : "border-border text-olive hover:border-brand-dark/40"
-                )}
-                aria-pressed={fulfillment === "pickup"}
-              >
-                <MapPin className="w-5 h-5" />
+              <span className="block text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-gold mt-3">
                 Pickup
-                {fulfillment === "pickup" && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-brand-dark" />
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => setFulfillment("delivery")}
-                className={cn(
-                  "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200 text-sm font-semibold cursor-pointer",
-                  fulfillment === "delivery"
-                    ? "border-brand-dark bg-brand-dark/5 text-brand-dark shadow-sm"
-                    : "border-border text-olive hover:border-brand-dark/40"
-                )}
-                aria-pressed={fulfillment === "delivery"}
-              >
-                <Truck className="w-5 h-5" />
-                Delivery
-                {fulfillment === "delivery" && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-brand-dark" />
-                )}
-              </button>
-            </div>
-
-            {/* Checkout info */}
-            <div className="flex items-center gap-2 text-xs text-olive bg-cream rounded-lg px-3 py-2">
-              <Clock className="w-3.5 h-3.5 flex-shrink-0 text-brand" />
-              <span>Secure Clover checkout</span>
-            </div>
-
-            {/* CTA */}
-            <div className="mt-auto">
-              {isLiveCheckout ? (
-                <Link
-                  href={`/order?type=${fulfillment}&orderTypeId=${selectedOrderType}`}
-                  className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl font-semibold text-sm bg-brand-dark text-white hover:bg-brand-olive shadow-lg shadow-brand-dark/20 transition-all duration-200"
-                  id="order-direct-btn"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  Start {fulfillment === "pickup" ? "Pickup" : "Delivery"} Order
-                </Link>
-              ) : (
-                <Link
-                  href="/order"
-                  className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl font-semibold text-sm bg-brand-dark text-white hover:bg-brand-olive shadow-lg shadow-brand-dark/20 transition-all duration-200"
-                  id="order-direct-btn"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  Browse Menu &amp; Order
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Card B: DoorDash */}
-          <div className="bg-white rounded-2xl p-7 flex flex-col gap-5 relative border border-border shadow-sm hover:shadow-md hover:border-brand-dark/30 transition-all duration-200">
-            <div className="flex flex-col items-center text-center">
-              <div className="p-4 w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
-                <UtensilsCrossed className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="font-heading text-xl font-bold text-olive-dark mb-0.5">
-                DoorDash
-              </h3>
-              <span className="text-xs font-bold text-olive uppercase tracking-wider mb-3">
-                Delivery
               </span>
-              <p className="text-sm text-olive leading-relaxed">
-                Fast and reliable delivery through DoorDash to your door.
+
+              <p className="text-sm sm:text-[15px] leading-relaxed text-white/70 mt-6">
+                Skip the fees and order directly with us. Freshly prepared and
+                ready when you arrive.
               </p>
-            </div>
 
-            <div className="mt-auto">
-              <a
-                href={restaurant.doordashUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl font-semibold text-sm border-2 border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white transition-all duration-200"
-                id="order-doordash-btn"
-              >
-                Order on DoorDash
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
+              <BenefitList benefits={DIRECT_BENEFITS} tone="dark" />
 
-          {/* Card C: Uber Eats */}
-          <div className="bg-white rounded-2xl p-7 flex flex-col gap-5 relative border border-border shadow-sm hover:shadow-md hover:border-brand-dark/30 transition-all duration-200">
-            <div className="flex flex-col items-center text-center">
-              <div className="p-4 w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
-                <Truck className="w-8 h-8 text-emerald-600" />
+              <div className="mt-auto pt-10">
+                <Link
+                  href="/menu"
+                  id="order-direct-btn"
+                  className="group inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-gold bg-brand-gold px-6 py-4
+                             text-xs font-bold uppercase tracking-[0.18em] text-brand-dark
+                             transition-all duration-200 hover:bg-white hover:border-white hover:-translate-y-[1.5px]
+                             active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+                >
+                  Start Pickup Order
+                  <ArrowRight
+                    className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                  />
+                </Link>
               </div>
-              <h3 className="font-heading text-xl font-bold text-olive-dark mb-0.5">
-                Uber Eats
-              </h3>
-              <span className="text-xs font-bold text-olive uppercase tracking-wider mb-3">
-                Delivery
-              </span>
-              <p className="text-sm text-olive leading-relaxed">
-                Real-time delivery tracking through Uber Eats.
-              </p>
-            </div>
-
-            <div className="mt-auto">
-              <a
-                href={restaurant.uberEatsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl font-semibold text-sm border-2 border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white transition-all duration-200"
-                id="order-ubereats-btn"
-              >
-                Order on Uber Eats
-                <ExternalLink className="w-4 h-4" />
-              </a>
             </div>
           </div>
+
+          {/* ---- Card B — Order Delivery (Slice) ---- */}
+          {sliceEnabled && (
+            <div className="relative flex flex-col h-full rounded-3xl bg-white p-8 sm:p-10 lg:p-12 border border-border shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-brand-gold/40">
+              <span className="self-start px-3.5 py-1.5 rounded-full border border-border text-[10px] font-semibold uppercase tracking-[0.25em] text-olive">
+                Preferred Partner
+              </span>
+
+              <div className="w-16 h-16 rounded-2xl border border-border bg-cream flex items-center justify-center mt-9">
+                <Bike
+                  className="w-7 h-7 text-brand-dark"
+                  strokeWidth={1.25}
+                  aria-hidden="true"
+                />
+              </div>
+
+              <h3 className="font-heading text-3xl sm:text-4xl font-semibold text-olive-dark tracking-tight mt-8">
+                Order Delivery
+              </h3>
+              <span className="block text-[11px] font-semibold uppercase tracking-[0.28em] text-olive mt-3">
+                Powered by Slice
+              </span>
+
+              <p className="text-sm sm:text-[15px] leading-relaxed text-olive mt-6">
+                Get Old Damascus delivered to your door through our preferred
+                partner.
+              </p>
+
+              <BenefitList benefits={SLICE_BENEFITS} tone="light" />
+
+              <div className="mt-auto pt-10">
+                <a
+                  href={restaurant.sliceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("slice_click", { source: "ordering_options" })
+                  }
+                  id="order-slice-btn"
+                  className="group inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-dark bg-transparent px-6 py-4
+                             text-xs font-bold uppercase tracking-[0.18em] text-brand-dark
+                             transition-all duration-200 hover:bg-brand-dark hover:text-white hover:-translate-y-[1.5px]
+                             active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold outline-none"
+                >
+                  Order Delivery on Slice
+                  <ExternalLink
+                    className="w-4 h-4"
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                  />
+                </a>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Call option */}
-        <div className="mt-8 text-center">
+        {/* ---- Call option ---- */}
+        <div className="mt-14 text-center">
           <p className="text-sm text-olive">
             Prefer to call?{" "}
             <a
               href={restaurant.phoneUrl}
-              className="font-bold text-brand-dark hover:text-brand transition-colors"
+              className="font-semibold text-brand-dark hover:text-brand-gold transition-colors"
             >
               {restaurant.phone}
             </a>

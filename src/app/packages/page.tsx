@@ -24,8 +24,8 @@ const FAQS = [
     a: "Yes, we provide professional catering for events of all sizes. Please visit our Catering page to request a custom quote.",
   },
   {
-    q: "Can I order through DoorDash or Uber Eats?",
-    a: "Yes, we partner with DoorDash and Uber Eats for standard menu delivery.",
+    q: "Can I get delivery?",
+    a: "Yes, we partner with Slice for standard menu delivery. You can also order direct on our website for pickup.",
   },
   {
     q: "Where is Old Damascus located?",

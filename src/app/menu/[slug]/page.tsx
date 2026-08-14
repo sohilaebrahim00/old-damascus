@@ -2,18 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ImageGallery } from "@/components/menu/ImageGallery";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  CheckCircle,
-  Leaf,
-  Flame,
-  ExternalLink,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle, Leaf, Flame } from "lucide-react";
 import { getMenuItemBySlug } from "@/services/menu.service";
 import { formatPrice } from "@/lib/utils";
 import { AddToCartSection } from "@/components/menu/AddToCartSection";
 import { ShareButton } from "@/components/menu/ShareButton";
-import { restaurant } from "@/config/restaurant";
+import { SliceOrderLink } from "@/components/menu/SliceOrderLink";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -110,24 +104,9 @@ export default async function MenuItemPage({ params }: Props) {
                 <p className="text-xs font-semibold text-olive mb-3 uppercase tracking-wide">
                   Also available on
                 </p>
-                <div className="flex gap-3">
-                  <a
-                    href={restaurant.doordashUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-outline btn-sm"
-                  >
-                    DoorDash <ExternalLink className="w-3 h-3" />
-                  </a>
-                  <a
-                    href={restaurant.uberEatsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-outline btn-sm"
-                  >
-                    Uber Eats <ExternalLink className="w-3 h-3" />
-                  </a>
-                  
+                <div className="flex flex-wrap items-center gap-3">
+                  <SliceOrderLink source="menu_item" label="Order Delivery on Slice" />
+
                   <div className="ml-auto">
                     <ShareButton 
                       title={`${item.name} | Old Damascus Menu`} 

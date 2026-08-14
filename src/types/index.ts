@@ -2,12 +2,7 @@
 // Core Menu Types
 // ============================================================
 
-export type MenuItemSource =
-  | "clover"
-  | "client"
-  | "doordash"
-  | "uber-eats"
-  | "seed";
+export type MenuItemSource = "clover" | "client" | "seed";
 
 export interface Modifier {
   id: string;

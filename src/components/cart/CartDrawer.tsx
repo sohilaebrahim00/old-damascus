@@ -6,7 +6,9 @@ import Link from "next/link";
 import { X, Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
 import { formatPrice } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, getSubtotal, getTotalItems } =
@@ -209,24 +211,19 @@ export function CartDrawer() {
               Proceed to Checkout
             </Link>
 
-            <div className="flex gap-3">
+            {integrations.sliceEnabled && (
               <a
-                href={restaurant.doordashUrl}
+                href={restaurant.sliceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-outline btn-sm flex-1 text-center"
+                onClick={() =>
+                  trackEvent("slice_click", { source: "cart_drawer" })
+                }
+                className="btn-outline btn-sm w-full justify-center"
               >
-                DoorDash
+                Order Delivery on Slice
               </a>
-              <a
-                href={restaurant.uberEatsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-outline btn-sm flex-1 text-center"
-              >
-                Uber Eats
-              </a>
-            </div>
+            )}
           </div>
         )}
       </div>

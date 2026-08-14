@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart.store";
 import { formatPrice } from "@/lib/utils";
 import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
+import { trackEvent } from "@/lib/analytics";
 import {
   ArrowLeft,
   ShoppingBag,
@@ -224,7 +226,7 @@ export default function CheckoutPage() {
   // 4. Unified Checkout Form Submit
   const onSubmit = async (data: CheckoutFormValues) => {
     if (!isCheckoutEnabled) {
-      setError("Online checkout is currently being finalized. Please order via DoorDash or Uber Eats.");
+      setError("Online checkout is currently being finalized. Please order delivery on Slice or call the restaurant.");
       return;
     }
 
@@ -367,27 +369,24 @@ export default function CheckoutPage() {
                     <div>
                       <p className="text-sm font-semibold text-olive-dark">Online Checkout Finalizing</p>
                       <p className="text-xs mt-1 leading-relaxed">
-                        Online checkout is being finalized. You can browse the menu and add items to your cart, but submissions are currently disabled. Please place your order through our delivery partners or call the restaurant directly.
+                        Online checkout is being finalized. You can browse the menu and add items to your cart, but submissions are currently disabled. Please order delivery on Slice or call the restaurant directly.
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 pt-3 border-t border-amber-500/20">
-                    <a
-                      href={restaurant.doordashUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-outline btn-sm bg-white hover:bg-red-50 flex-1 text-center animate-pulse"
-                    >
-                      Order on DoorDash <ExternalLink className="w-3.5 h-3.5 ml-1" />
-                    </a>
-                    <a
-                      href={restaurant.uberEatsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-outline btn-sm bg-white hover:bg-gray-50 flex-1 text-center animate-pulse"
-                    >
-                      Order on Uber Eats <ExternalLink className="w-3.5 h-3.5 ml-1" />
-                    </a>
+                    {integrations.sliceEnabled && (
+                      <a
+                        href={restaurant.sliceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          trackEvent("slice_click", { source: "checkout_fallback" })
+                        }
+                        className="btn-outline btn-sm bg-white hover:bg-orange-50 flex-1 text-center animate-pulse"
+                      >
+                        Order Delivery on Slice <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                      </a>
+                    )}
                     <a
                       href={restaurant.phoneUrl}
                       className="btn-primary btn-sm flex-1 justify-center"

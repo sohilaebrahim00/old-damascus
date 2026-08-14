@@ -38,6 +38,14 @@ yarn-error.log*
 *.env
 production.env
 
+# Raw photography sources.
+# Everything the site serves lives in public/photos as optimised WebP
+# (~9MB total). These originals are 200MB+ of PNG/JPEG and are kept locally
+# as masters only — they must never enter the repo or a deploy.
+/public/menu/
+/public/client-assets/
+/public/restaurant/
+
 # vercel
 .vercel
 

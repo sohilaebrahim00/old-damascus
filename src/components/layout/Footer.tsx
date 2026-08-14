@@ -11,11 +11,13 @@ import {
   Star,
 } from "lucide-react";
 import { restaurant } from "@/config/restaurant";
+import { integrations } from "@/config/integrations";
 import { currentYear, isSocialUrlValid } from "@/lib/utils";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { motion } from "framer-motion";
 import { staggerContainer, fadeUp } from "@/lib/motion";
 import { trackEvent } from "@/lib/analytics";
+import { BrandPattern } from "@/components/brand/BrandPattern";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -28,9 +30,11 @@ const NAV_LINKS = [
 export function Footer() {
   return (
     <footer className="bg-brand-olive text-white relative overflow-hidden">
+      <BrandPattern className="text-brand-gold" scale={92} opacity={0.05} />
+
       {/* Main Footer */}
-      <motion.div 
-        className="container-site py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
+      <motion.div
+        className="relative z-10 container-site py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
@@ -117,30 +121,20 @@ export function Footer() {
             Order Options
           </h3>
           <ul className="space-y-2">
-            <li>
-              <a
-                href={restaurant.doordashUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent("doordash_click", { source: "footer" })}
-                className="text-sm text-white/75 hover:text-white transition-colors flex items-center gap-1.5"
-              >
-                DoorDash
-                <ExternalLink className="w-3 h-3 opacity-60" />
-              </a>
-            </li>
-            <li>
-              <a
-                href={restaurant.uberEatsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent("ubereats_click", { source: "footer" })}
-                className="text-sm text-white/75 hover:text-white transition-colors flex items-center gap-1.5"
-              >
-                Uber Eats
-                <ExternalLink className="w-3 h-3 opacity-60" />
-              </a>
-            </li>
+            {integrations.sliceEnabled && (
+              <li>
+                <a
+                  href={restaurant.sliceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent("slice_click", { source: "footer" })}
+                  className="text-sm text-white/75 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  Slice — Delivery
+                  <ExternalLink className="w-3 h-3 opacity-60" />
+                </a>
+              </li>
+            )}
             <li>
               <a
                 href={restaurant.googleReviewUrl}

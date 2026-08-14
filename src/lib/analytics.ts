@@ -19,8 +19,7 @@ export type EventName =
   | "package_checkout_submit"
   | "catering_submit"
   | "call_click"
-  | "doordash_click"
-  | "ubereats_click"
+  | "slice_click"
   | "google_review_click"
   | "share_dish";
 

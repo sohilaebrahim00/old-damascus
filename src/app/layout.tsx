@@ -11,6 +11,7 @@ import { restaurant } from "@/config/restaurant";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { MotionProvider } from "@/components/providers/MotionProvider";
 import { OfferBanner } from "@/components/layout/OfferBanner";
+import { initialsFor } from "@/components/account/AccountIdentity";
 import Script from "next/script";
 
 // ---- Fonts ----
@@ -139,11 +140,7 @@ export default async function RootLayout({
                   closes: "22:00",
                 },
               ],
-              sameAs: [
-                restaurant.googleReviewUrl,
-                restaurant.doordashUrl,
-                restaurant.uberEatsUrl,
-              ],
+              sameAs: [restaurant.googleReviewUrl, restaurant.sliceUrl],
               servesCuisine: "Mediterranean",
             }),
           }}
@@ -153,7 +150,10 @@ export default async function RootLayout({
         <MotionProvider>
           <CartProvider>
             <OfferBanner />
-            <Header isAuthenticated={!!user} />
+            <Header
+              isAuthenticated={!!user}
+              initials={user ? initialsFor(user) : undefined}
+            />
             <main className="flex-1 pb-16 lg:pb-0">{children}</main>
             <Footer />
             <StickyMobileCart />

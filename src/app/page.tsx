@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { HeroSection } from "@/components/home/HeroSection";
+import { SignatureDishes } from "@/components/home/SignatureDishes";
+import { HeritageStory } from "@/components/home/HeritageStory";
+import { DessertExperience } from "@/components/home/DessertExperience";
 import { OrderingOptions } from "@/components/home/OrderingOptions";
 import { FeaturedMenu } from "@/components/home/FeaturedMenu";
-import { CustomerFavorites } from "@/components/home/CustomerFavorites";
 import { CategoryPreview } from "@/components/home/CategoryPreview";
 import { PackagesSection } from "@/components/home/PackagesSection";
-import { AboutPreview } from "@/components/home/AboutPreview";
 import { CateringBanner } from "@/components/home/CateringBanner";
 import { RestaurantInfo } from "@/components/home/RestaurantInfo";
 import { GoogleReviewCTA } from "@/components/home/GoogleReviewCTA";
@@ -101,15 +102,13 @@ export default async function HomePage() {
       />
 
       <HeroSection />
+      <SignatureDishes />
       <OrderingOptions />
-      <FeaturedMenu items={displayItems} />
-      <CustomerFavorites items={featuredItems} />
-      {/* Packages / Deals Section */}
-      <PackagesSection />
-
-      {/* Categories Preview */}
+      <HeritageStory />
       <CategoryPreview />
-      <AboutPreview />
+      <FeaturedMenu items={displayItems} />
+      <DessertExperience />
+      <PackagesSection />
       <CateringBanner />
       <RestaurantInfo />
       <GoogleReviewCTA />

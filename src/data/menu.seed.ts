@@ -1,8 +1,10 @@
 // ============================================================
 // Verified Fallback Menu Seed
 // Used when Clover is not configured or temporarily unavailable.
-// Sources: DoorDash (primary), Client Photos
-// Prices verified against DoorDash screenshots.
+// Prices were originally verified against third-party marketplace listings
+// and client photos. Those marketplaces are no longer ordering channels, so
+// every item now carries source: "seed" — item.source is provenance metadata
+// only and is never rendered.
 // ============================================================
 
 import type { MenuCategory, MenuItem } from "@/types";
@@ -99,7 +101,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     featured: true,
     popular: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -118,7 +120,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     vegetarian: true,
     vegan: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -133,7 +135,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     image: "", primaryImage: "", images: [""],
     available: true,
     featured: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
 
@@ -149,7 +151,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryName: "Kids Menu",
     image: "", primaryImage: "", images: [""],
     available: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -166,7 +168,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     available: true,
     featured: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -182,7 +184,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     image: "", primaryImage: "", images: [""],
     available: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -199,7 +201,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     available: true,
     featured: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
 
@@ -215,9 +217,9 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-grills",
     categoryName: "Grilled Dishes",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -231,9 +233,9 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-grills",
     categoryName: "Grilled Dishes",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -247,9 +249,9 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-mains",
     categoryName: "Main Dishes",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -263,9 +265,9 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-specialties",
     categoryName: "Specialties",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -279,11 +281,11 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-appetizers",
     categoryName: "Appetizers",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     vegetarian: true,
     vegan: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -297,10 +299,10 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-appetizers",
     categoryName: "Appetizers",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     vegetarian: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -314,9 +316,9 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-appetizers",
     categoryName: "Appetizers",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -330,10 +332,10 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-appetizers",
     categoryName: "Appetizers",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     vegetarian: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -347,11 +349,11 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-salads",
     categoryName: "Salads",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     vegetarian: true,
     vegan: true,
     halal: true,
-    source: "doordash",
+    source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
   {
@@ -365,7 +367,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-desserts",
     categoryName: "Desserts",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     vegetarian: true,
     source: "seed",
     lastVerifiedAt: "2026-07-06",
@@ -381,7 +383,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-desserts",
     categoryName: "Desserts",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     vegetarian: true,
     halal: true,
     source: "seed",
@@ -397,7 +399,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-drinks",
     categoryName: "Drinks",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     source: "seed",
     lastVerifiedAt: "2026-07-06",
   },
@@ -411,7 +413,7 @@ export const SEED_MENU_ITEMS: MenuItem[] = [
     categoryId: "cat-drinks",
     categoryName: "Drinks",
     image: "", primaryImage: "", images: [""],
-    available: false,
+    available: true,
     source: "seed",
     lastVerifiedAt: "2026-07-06",
   },

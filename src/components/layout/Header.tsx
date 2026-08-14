@@ -58,7 +58,13 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function Header({ isAuthenticated }: { isAuthenticated?: boolean }) {
+export function Header({
+  isAuthenticated,
+  initials,
+}: {
+  isAuthenticated?: boolean;
+  initials?: string;
+}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -207,10 +213,25 @@ export function Header({ isAuthenticated }: { isAuthenticated?: boolean }) {
             <div className="hidden lg:flex items-center gap-4">
               <Link
                 href={isAuthenticated ? "/account" : "/sign-in"}
-                className="p-2.5 rounded-full hover:bg-cream-warm transition-colors text-olive-dark group"
-                aria-label="Account"
+                className="group rounded-full outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-gold"
+                aria-label={isAuthenticated ? "My account" : "Sign in"}
               >
-                <User className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                {isAuthenticated && initials ? (
+                  <span
+                    className="w-9 h-9 inline-flex items-center justify-center rounded-full border border-brand-gold/50
+                               bg-brand-dark text-brand-gold font-heading text-[11px] font-semibold tracking-[0.08em]
+                               transition-transform duration-300 group-hover:scale-[1.06]"
+                  >
+                    {initials}
+                  </span>
+                ) : (
+                  <span
+                    className="w-9 h-9 inline-flex items-center justify-center rounded-full border border-border
+                               text-olive-dark transition-colors duration-300 group-hover:border-brand-gold group-hover:text-brand-gold"
+                  >
+                    <User className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                  </span>
+                )}
               </Link>
 
               <button
@@ -351,9 +372,15 @@ export function Header({ isAuthenticated }: { isAuthenticated?: boolean }) {
                     href={isAuthenticated ? "/account" : "/sign-in"}
                     className="flex items-center gap-3 font-semibold text-olive-dark hover:text-brand-dark transition-colors"
                   >
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                      <User className="w-5 h-5" />
-                    </div>
+                    {isAuthenticated && initials ? (
+                      <span className="w-10 h-10 rounded-full border border-brand-gold/50 bg-brand-dark text-brand-gold flex items-center justify-center font-heading text-[11px] font-semibold tracking-[0.08em]">
+                        {initials}
+                      </span>
+                    ) : (
+                      <span className="w-10 h-10 rounded-full bg-white border border-border flex items-center justify-center shadow-sm">
+                        <User className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                      </span>
+                    )}
                     {isAuthenticated ? "My Account" : "Sign In / Register"}
                   </Link>
                 </div>

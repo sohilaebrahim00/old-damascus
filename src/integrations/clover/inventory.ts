@@ -49,7 +49,11 @@ export async function fetchCloverItems(
   );
 
   return (data.elements ?? [])
-    .filter((item) => !item.hidden)
+    // Hidden and deleted items never belong on the public menu.
+    .filter((item) => !item.hidden && item.deleted !== true)
+    // Non-revenue register entries (gift cards, "Delivery Order" tickets)
+    // are POS bookkeeping, not dishes.
+    .filter((item) => item.isRevenue !== false)
     .map((item) => {
       const itemModGroups = (item.modifierGroups?.elements ?? [])
         .map((ref) => modGroupMap[ref.id])
