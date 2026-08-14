@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isCloverCheckoutConfigured } from "@/integrations/clover/config";
+import { isCloverRateLimit, toCustomerMessage } from "@/integrations/clover/errors";
 import { getMenuItems } from "@/services/menu.service";
 import {
   createCloverOrder,
@@ -352,15 +353,14 @@ export async function POST(req: Request) {
       );
     }
   } catch (err: unknown) {
+    // Never surface Clover status codes or response bodies to the guest.
     console.error("[Place Order Error]:", err);
     return NextResponse.json(
       {
-        error:
-          err instanceof Error
-            ? err.message
-            : "An unexpected error occurred while placing order.",
+        error: toCustomerMessage(err),
+        code: isCloverRateLimit(err) ? "CLOVER_RATE_LIMITED" : "ORDER_FAILED",
       },
-      { status: 500 }
+      { status: isCloverRateLimit(err) ? 503 : 500 }
     );
   }
 }

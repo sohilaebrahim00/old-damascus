@@ -17,7 +17,7 @@ import {
   DollarSign,
   Loader2,
 } from "lucide-react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CloverPaymentForm, {
@@ -28,12 +28,10 @@ const checkoutSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  orderType: z.enum(["pickup", "delivery"]),
+  // Pickup-only: delivery is fulfilled externally by Slice and must never
+  // reach the Clover order or payment path.
+  orderType: z.literal("pickup"),
   pickupTime: z.string().optional(),
-  street: z.string().optional(),
-  apartment: z.string().optional(),
-  city: z.string().optional(),
-  zip: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -107,7 +105,6 @@ export default function CheckoutPage() {
     register,
     handleSubmit,
     formState: { errors },
-    control,
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
@@ -116,18 +113,11 @@ export default function CheckoutPage() {
       phone: "",
       orderType: "pickup",
       pickupTime: "asap",
-      street: "",
-      apartment: "",
-      city: "Richardson",
-      zip: "75080",
       notes: "",
     },
   });
 
-  const orderType = useWatch({
-    control,
-    name: "orderType",
-  });
+  const orderType = "pickup" as const;
   const subtotal = getSubtotal();
 
   // 1. Fetch Clover Configurations
@@ -167,6 +157,12 @@ export default function CheckoutPage() {
   }, [subtotal, tipOption, customTip]);
 
   // 3. Fetch Clover calculated totals (Preview)
+  //
+  // Deliberately NOT keyed on tipAmount. Each preview builds, reads and
+  // deletes a real draft order on Clover — roughly eight API calls for a
+  // typical basket. Re-running that every time a guest taps a tip button was
+  // the main source of HTTP 429s, and the tip has no bearing on Clover's tax
+  // calculation anyway, so it is applied locally to the returned totals.
   useEffect(() => {
     if (items.length === 0 || !cloverConfig?.directOrderingEnabled) return;
 
@@ -187,7 +183,6 @@ export default function CheckoutPage() {
               })),
             })),
             orderType,
-            tipAmount,
           }),
         });
 
@@ -203,9 +198,11 @@ export default function CheckoutPage() {
         }
       } catch (err: unknown) {
         if (active) {
+          // Log the detail, show the guest something human.
           console.error("[Clover Preview Error]:", err);
-          const errorMsg = err instanceof Error ? err.message : "Could not calculate taxes. Offline fallback.";
-          setError(errorMsg);
+          setError(
+            "Online ordering is temporarily busy. Please try again in a moment."
+          );
         }
       } finally {
         if (active) setCheckoutStatus("idle");
@@ -221,7 +218,7 @@ export default function CheckoutPage() {
       active = false;
       clearTimeout(timer);
     };
-  }, [items, orderType, tipAmount, cloverConfig]);
+  }, [items, orderType, cloverConfig]);
 
   // 4. Unified Checkout Form Submit
   const onSubmit = async (data: CheckoutFormValues) => {
@@ -261,23 +258,13 @@ export default function CheckoutPage() {
               modifierId: m.modifierId,
             })),
           })),
-          orderType: data.orderType,
+          orderType: "pickup",
           customer: {
             firstName: data.name.split(" ")[0] || "Guest",
             lastName: data.name.split(" ").slice(1).join(" ") || "Customer",
             email: data.email,
             phone: data.phone,
           },
-          deliveryAddress:
-            data.orderType === "delivery"
-              ? {
-                  street: data.street || "",
-                  apartment: data.apartment || "",
-                  city: data.city || "",
-                  state: "TX",
-                  zip: data.zip || "",
-                }
-              : undefined,
           notes: data.notes,
           tipAmount,
           paymentToken: token,
@@ -445,58 +432,46 @@ export default function CheckoutPage() {
                 Fulfillment Details
               </h2>
 
-              <div className="grid grid-cols-2 gap-4">
-                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-colors ${orderType === "pickup" ? "bg-amber-50 border-amber-500" : "bg-cream border-border hover:border-brand"}`}>
-                  <div className="flex items-center gap-3">
-                    <input type="radio" value="pickup" {...register("orderType")} className="accent-brand-dark" />
-                    <span className="text-sm font-semibold text-olive-dark">Pickup</span>
-                  </div>
-                  <span className="text-xs text-olive font-medium">Free</span>
-                </label>
-
-                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-colors ${orderType === "delivery" ? "bg-amber-50 border-amber-500" : "bg-cream border-border hover:border-brand"}`}>
-                  <div className="flex items-center gap-3">
-                    <input type="radio" value="delivery" {...register("orderType")} className="accent-brand-dark" />
-                    <span className="text-sm font-semibold text-olive-dark">Delivery</span>
-                  </div>
-                  <span className="text-xs text-olive font-medium">Calculated</span>
-                </label>
+              {/* This checkout is pickup-only by design. Delivery is fulfilled
+                  by Slice, so it must never enter the Clover order/payment
+                  path — hence no fulfillment toggle here. */}
+              <div className="flex items-center justify-between p-4 rounded-xl border border-amber-500 bg-amber-50">
+                <div className="flex items-center gap-3">
+                  <ShoppingBag className="w-4 h-4 text-amber-600" />
+                  <span className="text-sm font-semibold text-olive-dark">
+                    Pickup at {restaurant.address.street}
+                  </span>
+                </div>
+                <span className="text-xs text-olive font-medium">Free</span>
               </div>
 
-              {orderType === "pickup" && (
-                <div>
-                  <label htmlFor="pickupTime" className="label">Pickup Time</label>
-                  <select id="pickupTime" {...register("pickupTime")} className="input bg-white">
-                    <option value="asap">As Soon As Possible (ASAP)</option>
-                    <option value="30m">In 30 Minutes</option>
-                    <option value="1h">In 1 Hour</option>
-                    <option value="2h">In 2 Hours</option>
-                  </select>
-                </div>
-              )}
+              <div>
+                <label htmlFor="pickupTime" className="label">Pickup Time</label>
+                <select id="pickupTime" {...register("pickupTime")} className="input bg-white">
+                  <option value="asap">As Soon As Possible (ASAP)</option>
+                  <option value="30m">In 30 Minutes</option>
+                  <option value="1h">In 1 Hour</option>
+                  <option value="2h">In 2 Hours</option>
+                </select>
+              </div>
 
-              {orderType === "delivery" && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="street" className="label">Street Address</label>
-                      <input id="street" type="text" {...register("street")} className="input" placeholder="123 Main St" />
-                    </div>
-                    <div>
-                      <label htmlFor="apartment" className="label">Apartment / Suite</label>
-                      <input id="apartment" type="text" {...register("apartment")} className="input" placeholder="Apt 4B" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="city" className="label">City</label>
-                      <input id="city" type="text" {...register("city")} className="input" placeholder="Richardson" />
-                    </div>
-                    <div>
-                      <label htmlFor="zip" className="label">ZIP Code</label>
-                      <input id="zip" type="text" {...register("zip")} className="input" placeholder="75080" />
-                    </div>
-                  </div>
+              {integrations.sliceEnabled && (
+                <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-border bg-cream">
+                  <p className="text-xs text-olive leading-relaxed">
+                    Need it delivered instead? Delivery is handled by our
+                    partner Slice.
+                  </p>
+                  <a
+                    href={restaurant.sliceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      trackEvent("slice_click", { source: "checkout_fulfillment" })
+                    }
+                    className="btn-outline btn-sm whitespace-nowrap"
+                  >
+                    Order Delivery <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                  </a>
                 </div>
               )}
 

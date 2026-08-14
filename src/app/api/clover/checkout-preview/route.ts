@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isCloverCheckoutConfigured } from "@/integrations/clover/config";
+import { isCloverRateLimit, toCustomerMessage } from "@/integrations/clover/errors";
 import { getMenuItems } from "@/services/menu.service";
 import {
   createCloverOrder,
@@ -195,15 +196,14 @@ export async function POST(req: Request) {
       throw err;
     }
   } catch (err) {
+    // Full detail to the server log; a human sentence to the guest.
     console.error("[Checkout Preview Error]:", err);
     return NextResponse.json(
       {
-        error:
-          err instanceof Error
-            ? err.message
-            : "Checkout calculation failed on Clover.",
+        error: toCustomerMessage(err),
+        code: isCloverRateLimit(err) ? "CLOVER_RATE_LIMITED" : "PREVIEW_FAILED",
       },
-      { status: 500 }
+      { status: isCloverRateLimit(err) ? 503 : 500 }
     );
   }
 }
