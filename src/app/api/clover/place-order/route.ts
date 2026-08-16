@@ -11,6 +11,7 @@ import {
 } from "@/integrations/clover/orders";
 import { payCloverOrder } from "@/integrations/clover/payments";
 import { saveOrder, getOrder, updateOrder } from "@/lib/db";
+import { sendOrderEmails } from "@/lib/order-emails";
 import type { Order, OrderStatus, PaymentStatus } from "@/types";
 
 const placeOrderSchema = z.object({
@@ -320,11 +321,35 @@ export async function POST(req: Request) {
           `[Place Order] Payment succeeded for order ${orderNumber}. Clover Payment ID: ${paymentRes.id}`
         );
 
-        // 12. Mark order as PAID upon confirmed approval
+        // 12. Payment approved: hand the order to the kitchen.
+        //
+        // status moves to NEW rather than PAID — NEW is the first state the
+        // kitchen display queries (NEW/ACCEPTED/PREPARING/READY), so a paid
+        // order parked at PAID never reached the restaurant. Payment state is
+        // recorded separately on paymentStatus.
         await updateOrder(checkoutReference, {
-          status: "PAID" as OrderStatus,
+          status: "NEW" as OrderStatus,
           paymentStatus: "PAID" as PaymentStatus,
           cloverPaymentId: paymentRes.id,
+        });
+
+        // Receipts are best-effort: a mail failure must never fail a paid
+        // order. Errors are swallowed and logged inside the helper.
+        await sendOrderEmails({
+          orderNumber,
+          customerName: `${customer.firstName} ${customer.lastName}`,
+          customerEmail: customer.email,
+          customerPhone: customer.phone,
+          items: dbOrderItems.map((i) => ({
+            name: i.name,
+            quantity: i.quantity,
+            price: i.price,
+          })),
+          subtotalCents: computedSubtotal,
+          taxCents: computedTax,
+          tipCents,
+          totalCents: finalTotalCents,
+          notes: notes || undefined,
         });
 
         return NextResponse.json({

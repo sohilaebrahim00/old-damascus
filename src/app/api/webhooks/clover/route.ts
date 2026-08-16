@@ -113,7 +113,17 @@ export async function POST(req: Request) {
           // Reconcile status based on Clover Order State
           if (cloverOrderDetails.state === "locked" || cloverOrderDetails.state === "paid") {
             nextPaymentStatus = "PAID";
-            nextStatus = "PAID";
+            // NEW, not PAID: the kitchen display only queries the fulfillment
+            // states. Don't rewind an order the kitchen has already picked up.
+            const alreadyInKitchen = [
+              "NEW",
+              "ACCEPTED",
+              "PREPARING",
+              "READY",
+              "COMPLETED",
+              "CANCELLED",
+            ].includes(localOrder.status);
+            if (!alreadyInKitchen) nextStatus = "NEW";
           } else if (cloverOrderDetails.state === "open") {
             // Keep status
           }

@@ -12,7 +12,8 @@ import {
   Phone,
   User,
   MapPin,
-  ChevronRight
+  ChevronRight,
+  ExternalLink
 } from "lucide-react";
 import { useCartStore } from "@/store/cart.store";
 import { restaurant } from "@/config/restaurant";
@@ -258,9 +259,28 @@ export function Header({
 
               <div className="w-px h-8 bg-border/80 mx-2" />
 
-              <Link href="/menu" className="btn-primary">
-                Order Pickup
-              </Link>
+              {/* Two ways to order, matching the hero and order section:
+                  pickup stays with us on Clover, delivery leaves for Slice. */}
+              <div className="flex items-center gap-2">
+                <Link href="/menu" className="btn-primary btn-sm px-5 py-2.5">
+                  Pickup
+                </Link>
+
+                {integrations.sliceEnabled && (
+                  <a
+                    href={restaurant.sliceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      trackEvent("slice_click", { source: "header_desktop" })
+                    }
+                    className="btn-outline btn-sm px-5 py-2.5"
+                  >
+                    Delivery
+                    <ExternalLink className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  </a>
+                )}
+              </div>
             </div>
 
             {/* Mobile Actions */}

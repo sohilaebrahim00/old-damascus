@@ -93,6 +93,11 @@ export interface CartItem {
 
 export type OrderType = "pickup" | "delivery";
 
+/**
+ * Two concerns share this field. DRAFT..PAID track the payment attempt;
+ * NEW..COMPLETED track kitchen fulfillment. A paid order must move to NEW,
+ * because that is the first state the kitchen display queries for.
+ */
 export type OrderStatus =
   | "DRAFT"
   | "VALIDATING"
@@ -100,6 +105,7 @@ export type OrderStatus =
   | "PAYMENT_PROCESSING"
   | "PAID"
   | "PAYMENT_FAILED"
+  | "NEW"
   | "SUBMITTED_TO_CLOVER"
   | "ACCEPTED"
   | "PREPARING"
