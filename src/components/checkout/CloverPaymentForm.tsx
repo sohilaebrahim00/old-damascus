@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
+import React, { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from "react";
 import Script from "next/script";
 import { CreditCard, ShieldAlert } from "lucide-react";
 
@@ -50,6 +50,20 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     const [cardError, setCardError] = useState<string | null>(null);
     const cloverInstance = useRef<CloverInstance | null>(null);
     const cardElementsRef = useRef<CloverElement[]>([]);
+    const initializedRef = useRef(false);
+
+    // The parent passes onError as an inline arrow, so its identity changes on
+    // every render. Holding it in a ref keeps it out of the mount effect's
+    // dependencies — otherwise each parent re-render re-ran the effect and
+    // mounted another set of card iframes.
+    const onErrorRef = useRef(onError);
+    useEffect(() => {
+      onErrorRef.current = onError;
+    }, [onError]);
+
+    const notifyError = useCallback((message: string) => {
+      onErrorRef.current?.(message);
+    }, []);
 
     const sdkUrl =
       environment === "sandbox"
@@ -60,7 +74,7 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     useImperativeHandle(ref, () => ({
       async requestToken() {
         if (!cloverInstance.current || cardElementsRef.current.length === 0) {
-          onError("Payment interface is not ready.");
+          notifyError("Payment interface is not ready.");
           return null;
         }
 
@@ -70,25 +84,25 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
           if (result.error && result.error.message) {
             const errMsg = result.error.message;
             setCardError(errMsg);
-            onError(errMsg);
+            notifyError(errMsg);
             return null;
           }
           if (result.errors) {
             const firstErr = Object.values(result.errors)[0] || "Failed to validate card fields.";
             setCardError(firstErr);
-            onError(firstErr);
+            notifyError(firstErr);
             return null;
           }
           if (result.token) {
             return result.token;
           }
-          onError("Could not generate secure token from Clover.");
+          notifyError("Could not generate secure token from Clover.");
           return null;
         } catch (err) {
           console.error("[Clover Tokenization Exception]:", err);
           const errMsg = "Card validation timed out. Please try again.";
           setCardError(errMsg);
-          onError(errMsg);
+          notifyError(errMsg);
           return null;
         }
       },
@@ -103,11 +117,18 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     useEffect(() => {
       if (!sdkLoaded || !merchantId || !publicKey) return;
 
+      // The card fields must be built exactly once per SDK/merchant. Without
+      // this guard a second pass calls mount() again and Clover injects a
+      // second set of iframes on top of the first.
+      if (initializedRef.current) return;
+      initializedRef.current = true;
+
       try {
         console.log(`[Clover SDK] Initializing Clover Elements for merchant: ${merchantId}`);
 
         if (!window.Clover) {
-          onError("Clover SDK is not loaded.");
+          initializedRef.current = false;
+          notifyError("Clover SDK is not loaded.");
           return;
         }
 
@@ -152,8 +173,16 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
 
         if (!numEl || !dateEl || !cvvEl) {
           console.warn("[Clover SDK] Target containers (#clover-card-number, #clover-card-date, #clover-card-cvv) not found in DOM yet.");
+          // Allow a later run to try again once the containers exist.
+          initializedRef.current = false;
           return;
         }
+
+        // Belt and braces: never mount into a container that already holds an
+        // iframe from a previous pass.
+        numEl.replaceChildren();
+        dateEl.replaceChildren();
+        cvvEl.replaceChildren();
 
         cardNumber.mount("#clover-card-number");
         cardDate.mount("#clover-card-date");
@@ -163,7 +192,7 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
           el.addEventListener("change", (event: CloverChangeEvent) => {
             if (event.error && event.error.message) {
               setCardError(event.error.message);
-              onError(event.error.message);
+              notifyError(event.error.message);
             } else {
               setCardError(null);
             }
@@ -179,7 +208,7 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
           userMsg = `Failed to load Clover payment fields (${errStr}). Please refresh or verify domain setup.`;
         }
         setSdkError(userMsg);
-        onError(userMsg);
+        notifyError(userMsg);
       }
 
       return () => {
@@ -191,8 +220,18 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
           }
         });
         cardElementsRef.current = [];
+        cloverInstance.current = null;
+
+        // destroy() does not reliably remove the injected iframe, so clear the
+        // containers explicitly. Any leftover node would show up as a second
+        // Card Number / Expiry / CVV field.
+        document.querySelector("#clover-card-number")?.replaceChildren();
+        document.querySelector("#clover-card-date")?.replaceChildren();
+        document.querySelector("#clover-card-cvv")?.replaceChildren();
+
+        initializedRef.current = false;
       };
-    }, [sdkLoaded, merchantId, publicKey, onError]);
+    }, [sdkLoaded, merchantId, publicKey, notifyError]);
 
     return (
       <div className="w-full bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 p-6 shadow-2xl relative overflow-hidden transition-all duration-300 hover:border-amber-500/20">
@@ -204,7 +243,7 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
           onLoad={() => setSdkLoaded(true)}
           onError={() => {
             setSdkError("Could not establish a secure connection to Clover.");
-            onError("Could not establish a secure connection to Clover.");
+            notifyError("Could not establish a secure connection to Clover.");
           }}
         />
 

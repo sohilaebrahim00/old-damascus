@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart.store";
@@ -100,6 +100,10 @@ export default function CheckoutPage() {
   const [priceChanged, setPriceChanged] = useState(false);
 
   const paymentFormRef = useRef<CloverPaymentFormRef>(null);
+
+  // Stable identity: passing an inline arrow here re-ran the payment form's
+  // mount effect on every checkout re-render, stacking duplicate card iframes.
+  const handlePaymentError = useCallback((err: string) => setError(err), []);
 
   const {
     register,
@@ -491,7 +495,7 @@ export default function CheckoutPage() {
                     merchantId={cloverConfig.merchantId}
                     publicKey={cloverConfig.publicKey}
                     environment={cloverConfig.environment}
-                    onError={(err) => setError(err)}
+                    onError={handlePaymentError}
                     isProcessing={loading}
                   />
                 </div>
