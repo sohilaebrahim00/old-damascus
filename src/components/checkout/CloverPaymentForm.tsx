@@ -43,6 +43,31 @@ declare global {
   }
 }
 
+const CARD_CONTAINER_IDS = [
+  "clover-card-number",
+  "clover-card-date",
+  "clover-card-cvv",
+] as const;
+
+/**
+ * Clover injects each card iframe asynchronously, some time after mount()
+ * returns. If a second initialise ever slips through, both injections land
+ * and the container ends up holding two iframes stacked vertically.
+ *
+ * Keep the newest node - the one belonging to the live Clover instance that
+ * createToken() reads from - and drop anything older.
+ */
+function enforceSingleCardIframe(): void {
+  if (typeof document === "undefined") return;
+  for (const id of CARD_CONTAINER_IDS) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    while (el.childElementCount > 1 && el.firstElementChild) {
+      el.removeChild(el.firstElementChild);
+    }
+  }
+}
+
 const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProps>(
   ({ merchantId, publicKey, environment, onError }, ref) => {
     const [sdkLoaded, setSdkLoaded] = useState(false);
@@ -50,7 +75,12 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     const [cardError, setCardError] = useState<string | null>(null);
     const cloverInstance = useRef<CloverInstance | null>(null);
     const cardElementsRef = useRef<CloverElement[]>([]);
-    const initializedRef = useRef(false);
+    // Which merchant/key the fields were built for. Deliberately NOT cleared
+    // by effect cleanup: the previous guard reset itself there, so any
+    // dependency change re-ran a full initialise and mount() injected a
+    // second set of iframes on top of the in-flight first set.
+    const mountedKeyRef = useRef<string | null>(null);
+    const observerRef = useRef<MutationObserver | null>(null);
 
     // The parent passes onError as an inline arrow, so its identity changes on
     // every render. Holding it in a ref keeps it out of the mount effect's
@@ -63,6 +93,18 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
 
     const notifyError = useCallback((message: string) => {
       onErrorRef.current?.(message);
+    }, []);
+
+    // Safety net: whatever injects an extra iframe, prune it the moment it
+    // lands rather than trusting that the mount path stayed single.
+    const startDuplicateWatch = useCallback(() => {
+      if (observerRef.current || typeof MutationObserver === "undefined") return;
+      const observer = new MutationObserver(() => enforceSingleCardIframe());
+      for (const id of CARD_CONTAINER_IDS) {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el, { childList: true });
+      }
+      observerRef.current = observer;
     }, []);
 
     const sdkUrl =
@@ -117,17 +159,15 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     useEffect(() => {
       if (!sdkLoaded || !merchantId || !publicKey) return;
 
-      // The card fields must be built exactly once per SDK/merchant. Without
-      // this guard a second pass calls mount() again and Clover injects a
-      // second set of iframes on top of the first.
-      if (initializedRef.current) return;
-      initializedRef.current = true;
+      // Build the card fields exactly once per merchant/key. This is the
+      // only place permitted to call elements() / create() / mount().
+      const mountKey = merchantId + '|' + publicKey;
+      if (mountedKeyRef.current === mountKey) return;
 
       try {
         console.log(`[Clover SDK] Initializing Clover Elements for merchant: ${merchantId}`);
 
         if (!window.Clover) {
-          initializedRef.current = false;
           notifyError("Clover SDK is not loaded.");
           return;
         }
@@ -173,20 +213,40 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
 
         if (!numEl || !dateEl || !cvvEl) {
           console.warn("[Clover SDK] Target containers (#clover-card-number, #clover-card-date, #clover-card-cvv) not found in DOM yet.");
-          // Allow a later run to try again once the containers exist.
-          initializedRef.current = false;
+          // mountedKeyRef stays unset so a later pass can retry.
           return;
         }
 
-        // Belt and braces: never mount into a container that already holds an
-        // iframe from a previous pass.
-        numEl.replaceChildren();
-        dateEl.replaceChildren();
-        cvvEl.replaceChildren();
+        // Destroy anything a previous instance left behind, then guarantee
+        // every container holds zero children before mounting into it.
+        cardElementsRef.current.forEach((el) => {
+          try {
+            el.destroy();
+          } catch {
+            /* element already gone */
+          }
+        });
+        for (const id of CARD_CONTAINER_IDS) {
+          const el = document.getElementById(id);
+          el?.replaceChildren();
+          if (el && el.childElementCount !== 0) {
+            console.warn("[Clover SDK] Container still had children:", id);
+          }
+        }
 
         cardNumber.mount("#clover-card-number");
         cardDate.mount("#clover-card-date");
         cardCvv.mount("#clover-card-cvv");
+
+        // Committed: no later pass re-initialises for this merchant/key.
+        mountedKeyRef.current = mountKey;
+
+        // The iframes arrive asynchronously, so sweep once they land and
+        // keep watching for late arrivals.
+        startDuplicateWatch();
+        requestAnimationFrame(enforceSingleCardIframe);
+        setTimeout(enforceSingleCardIframe, 400);
+        setTimeout(enforceSingleCardIframe, 1500);
 
         [cardNumber, cardDate, cardCvv].forEach((el) => {
           el.addEventListener("change", (event: CloverChangeEvent) => {
@@ -211,7 +271,18 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
         notifyError(userMsg);
       }
 
+      // No cleanup here, on purpose. Tearing the fields down whenever a
+      // dependency changed is what produced the duplicates: cleanup cleared
+      // a container the previous mount() had not filled yet, the next pass
+      // mounted again, and both async injections then landed.
+    }, [sdkLoaded, merchantId, publicKey, notifyError, startDuplicateWatch]);
+
+    // Teardown belongs to the real unmount, nothing else.
+    useEffect(() => {
       return () => {
+        observerRef.current?.disconnect();
+        observerRef.current = null;
+
         cardElementsRef.current.forEach((el) => {
           try {
             el.destroy();
@@ -222,16 +293,12 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
         cardElementsRef.current = [];
         cloverInstance.current = null;
 
-        // destroy() does not reliably remove the injected iframe, so clear the
-        // containers explicitly. Any leftover node would show up as a second
-        // Card Number / Expiry / CVV field.
-        document.querySelector("#clover-card-number")?.replaceChildren();
-        document.querySelector("#clover-card-date")?.replaceChildren();
-        document.querySelector("#clover-card-cvv")?.replaceChildren();
-
-        initializedRef.current = false;
+        for (const id of CARD_CONTAINER_IDS) {
+          document.getElementById(id)?.replaceChildren();
+        }
+        mountedKeyRef.current = null;
       };
-    }, [sdkLoaded, merchantId, publicKey, notifyError]);
+    }, []);
 
     return (
       <div className="w-full bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800 p-6 shadow-2xl relative overflow-hidden transition-all duration-300 hover:border-amber-500/20">
