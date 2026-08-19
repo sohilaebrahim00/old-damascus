@@ -235,23 +235,32 @@ export default function CheckoutPage() {
     setError(null);
     setCheckoutStatus("securing_payment");
 
+    // Tracked locally: reading checkoutStatus in the catch below would see
+    // the value captured at render, not the latest one.
+    let declined = false;
+    let navigated = false;
+
+    // Never let a hung network call strand the button in a loading state.
+    const controller = new AbortController();
+    const abortTimer = setTimeout(() => controller.abort(), 45000);
+
     try {
       // Step A: Trigger tokenization on Clover card iframe
-      console.log("[Checkout] Requesting payment token...");
+      console.log("[Pay] submit:start - requesting payment token");
       const token = await paymentFormRef.current?.requestToken();
 
       if (!token) {
-        setCheckoutStatus("idle");
-        setLoading(false);
-        return; // error is handled and displayed in CloverPaymentForm
+        console.warn("[Pay] submit:no-token - stopping, form shows the reason");
+        return; // error is surfaced by CloverPaymentForm
       }
 
+      console.log("[Pay] submit:token-ok - placing order");
       setCheckoutStatus("placing_order");
 
       // Step B: Submit order to Place Order API
-      console.log("[Checkout] Submitting order payload...");
       const res = await fetch("/api/clover/place-order", {
         method: "POST",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           checkoutReference,
@@ -275,24 +284,40 @@ export default function CheckoutPage() {
         }),
       });
 
-      const body = await res.json();
+      const body = await res.json().catch(() => ({}));
+      console.log("[Pay] submit:place-order response", res.status, body?.code ?? "");
 
       if (!res.ok) {
+        declined = true;
         setCheckoutStatus("declined");
-        throw new Error(body.error || "Payment declined or order creation failed.");
+        throw new Error(
+          body.error ||
+            "We could not complete your payment. Please check your card details and try again."
+        );
       }
 
       // Success
+      console.log("[Pay] submit:success - redirecting to confirmation");
       setCheckoutStatus("success");
+      navigated = true;
       clearCart();
       router.push(`/order-confirmation/${checkoutReference}`);
     } catch (err: unknown) {
-      console.error("[Checkout Submission Error]:", err);
-      const errorMsg = err instanceof Error ? err.message : "Order processing failed. Please check card details.";
-      setError(errorMsg);
-      setLoading(false);
-      if (checkoutStatus !== "declined") {
-        setCheckoutStatus("idle");
+      console.error("[Pay] submit:error", err);
+      const aborted = err instanceof DOMException && err.name === "AbortError";
+      setError(
+        aborted
+          ? "That took longer than expected. Your card may not have been charged — please check your email before retrying, or call the restaurant."
+          : err instanceof Error
+            ? err.message
+            : "Order processing failed. Please try again."
+      );
+    } finally {
+      // Single exit point: the button can never be left spinning.
+      clearTimeout(abortTimer);
+      if (!navigated) {
+        setLoading(false);
+        if (!declined) setCheckoutStatus("idle");
       }
     }
   };

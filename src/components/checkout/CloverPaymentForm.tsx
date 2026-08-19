@@ -62,10 +62,36 @@ function enforceSingleCardIframe(): void {
   for (const id of CARD_CONTAINER_IDS) {
     const el = document.getElementById(id);
     if (!el) continue;
-    while (el.childElementCount > 1 && el.firstElementChild) {
-      el.removeChild(el.firstElementChild);
+    // Only ever remove a SURPLUS IFRAME. Clover also injects helper nodes
+    // it needs to complete tokenization; deleting those made createToken()
+    // hang forever on 'Verifying Secure Card...'.
+    const frames = el.querySelectorAll(":scope > iframe");
+    for (let i = 0; i < frames.length - 1; i++) {
+      frames[i].remove();
     }
   }
+}
+
+const TOKENIZE_TIMEOUT_MS = 25000;
+
+/** Reject rather than hang if a promise never settles. */
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(label + ' timed out after ' + ms + 'ms')),
+      ms
+    );
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
 }
 
 const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProps>(
@@ -81,6 +107,9 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     // second set of iframes on top of the in-flight first set.
     const mountedKeyRef = useRef<string | null>(null);
     const observerRef = useRef<MutationObserver | null>(null);
+    // Pruning is paused while Clover is tokenizing, so the observer can
+    // never remove a node the SDK is mid-handshake with.
+    const suspendPruneRef = useRef(false);
 
     // The parent passes onError as an inline arrow, so its identity changes on
     // every render. Holding it in a ref keeps it out of the mount effect's
@@ -99,7 +128,10 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     // lands rather than trusting that the mount path stayed single.
     const startDuplicateWatch = useCallback(() => {
       if (observerRef.current || typeof MutationObserver === "undefined") return;
-      const observer = new MutationObserver(() => enforceSingleCardIframe());
+      const observer = new MutationObserver(() => {
+        if (suspendPruneRef.current) return;
+        enforceSingleCardIframe();
+      });
       for (const id of CARD_CONTAINER_IDS) {
         const el = document.getElementById(id);
         if (el) observer.observe(el, { childList: true });
@@ -115,14 +147,27 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
     // Expose requestToken method to parent component via ref
     useImperativeHandle(ref, () => ({
       async requestToken() {
+        console.log("[Pay] tokenize:start");
         if (!cloverInstance.current || cardElementsRef.current.length === 0) {
-          notifyError("Payment interface is not ready.");
+          console.warn("[Pay] tokenize:abort - payment interface not ready");
+          notifyError("Payment interface is not ready. Please refresh and try again.");
           return null;
         }
 
         setCardError(null);
+        // Clover may inject helper frames while tokenizing; do not prune.
+        suspendPruneRef.current = true;
         try {
-          const result = await cloverInstance.current.createToken();
+          const result = await withTimeout(
+            cloverInstance.current.createToken(),
+            TOKENIZE_TIMEOUT_MS,
+            "Clover createToken"
+          );
+          console.log("[Pay] tokenize:response", {
+            hasToken: !!result?.token,
+            hasError: !!result?.error,
+            hasFieldErrors: !!result?.errors,
+          });
           if (result.error && result.error.message) {
             const errMsg = result.error.message;
             setCardError(errMsg);
@@ -136,16 +181,21 @@ const CloverPaymentForm = forwardRef<CloverPaymentFormRef, CloverPaymentFormProp
             return null;
           }
           if (result.token) {
+            console.log("[Pay] tokenize:success");
             return result.token;
           }
-          notifyError("Could not generate secure token from Clover.");
+          console.warn("[Pay] tokenize:empty - no token in response");
+          notifyError("We could not verify your card. Please try again.");
           return null;
         } catch (err) {
-          console.error("[Clover Tokenization Exception]:", err);
-          const errMsg = "Card validation timed out. Please try again.";
+          console.error("[Pay] tokenize:exception", err);
+          const errMsg =
+            "We could not verify your card. Please check the details and try again.";
           setCardError(errMsg);
           notifyError(errMsg);
           return null;
+        } finally {
+          suspendPruneRef.current = false;
         }
       },
     }));
