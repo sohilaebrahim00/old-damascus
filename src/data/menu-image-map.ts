@@ -35,7 +35,6 @@ export const MENU_IMAGE_MAP: Record<string, string | ImageMapping> = {
 
   "kofta kabab plate": shot("kofta-kabab-plate"),
   "kofta-kabab-plate": shot("kofta-kabab-plate"),
-  // Real in-restaurant frame of kofta skewers on the board.
   "kofta kabab skewers": shot("beef-kebab-skewers", "kofta-kabab-plate"),
   "kofta-kabab-skewers": shot("beef-kebab-skewers", "kofta-kabab-plate"),
 
